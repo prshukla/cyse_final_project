@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="css/stylesheet.css"/>
+        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery.color.js"></script>
+        <script type="text/javascript" src="js/raphael.js"></script>
+        <script type="text/javascript" src="js/nodegraph.js"></script>        
+        <script type="text/javascript" src="js/script.js"></script>
+        <title>object Oriented Code analyzer</title>
+    </head>
+    <body>
+        <div id="overlay"></div> 
+        <header id="mainhdr">
+            <nav id="menu">
+                <ul>
+                    <li> <a id="open">open</a></li>
+                    <li> <a id="new">new</a></li>
+                    <li> <a id="save">save</a></li>
+                    <li id="cwd_box"> <form id="cwd_form">Working directory: <input type ="text" name="cwd" id="cwd" > </form></input>
+                    <li><a id="help">help</a></li>
+                </ul>
+            </nav>
+        </header>
+            
+        <div id="file_open">
+            <header id="file_open_hdr">
+                <h3> Open an existing project</h3>
+            </header>
+            <div>
+                <p class="file_select">
+                    select a project file 
+                </p>
+                <form id="file_open_form" method="get"> 
+                <input class="gray button" type="file" name="filename">
+                <p> <INPUT class="gray button" TYPE="button" NAME="button" Value="open" onClick="open_file(this.form)"></p> 
+                </form>
+                <p class="file_select"> or <input class=" gray button" type="button" Name="button" value="scan current working directory" 
+                              onClick="scan_cwd()"></input>
+                </p>
+            </div>
+               
+        </div>
+        <!-- This save file information -->
+        <div id="save_file">
+                <header id="file_open_hdr">
+                <h3> Save Project as</h3>
+            </header>
+            <div>
+                <form id="save_project_file" method="post">
+                <p class=" save_file_form"> Project file :
+                    <input type="text" id="save_file_txt_box"> 
+                </p>
+                <p> 
+                    <input class="gray button" type="button" value="Save" onClick="save_file(this.form)">
+                </p> 
+                </form>
+            </div>
+        </div>
+        <!-- display all the files in the project -->
+        <div id="browse_info">
+            <header id="file_open_hdr">
+                <h3 id="res">Project  Resources</h3>
+            </header>
+        </div>
+        <div id="canvas">   
+        </div>
+        </p>
+    </body>
+</html>

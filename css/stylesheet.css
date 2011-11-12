@@ -1,0 +1,175 @@
+nav#menu
+{
+    margin:30px 0 40px;
+    font-family:Helvetica;
+    height:40px;
+    width:100%;
+    -webkit-border-radius:20px;
+    background-color:gray;
+    
+}
+
+#expand, #collapse
+{
+    margin-left:10px;
+}
+
+nav#menu ul 
+{
+    text-align:center;
+    margin: 0 auto;
+    display:table;
+}
+nav#menu ul li
+{ 
+    position:relative;
+    display:inline;
+}
+
+nav#menu ul li a 
+{
+	font-size: 20px;
+	display: block;
+	float: left;
+	text-transform: uppercase;
+	line-height: 40px;
+	padding: 0 25px;
+	color: white;
+}
+
+#cwd_text
+{
+  	font-size: 20px;
+	display: block;
+	float: left;
+	line-height: 40px;
+	padding: 0 25px;
+	color: white;  
+}
+#overlay{
+  position: absolute;
+  background : url("../images/trans.gif");
+  z-index : 1000;
+  cursor: pointer;
+}
+
+#cwd_box
+{
+    display: block;
+    float: left;
+    line-height: 40px;
+    padding: 0 25px;
+    font-family: Helvetica;
+    color:white;
+}
+
+#cwd
+{
+    width:210px;
+}
+
+nav#menu ul li a:hover 
+{
+	border: none;
+	box-shadow: inset 0 0 15px #aaaaaa, inset 0 -35px 35px -18px #bbbbbb;
+        -webkit-box-shadow: 0 0 15px  #aaaaaa;
+        color:red;
+	background-image: -webkit-gradient(linear,left bottom,left top,color-stop(0, #888888),color-stop(1, #999999));
+        
+}
+
+#file_open, #save_file
+{
+    width: 400px;
+    height: 200px;
+    border-color: gray;
+    border-style: solid;
+    -webkit-border-radius: 10px;
+}
+
+#browse_info
+{
+    width: 180px;
+    border-color: gray;
+    border-style: solid;
+    -webkit-border-radius: 10px; 
+}
+
+#file_open_hdr h3
+{
+    color:white;
+    font-family: Helvetica;
+    font-size: 15px;
+    background-color:gray;
+    text-align: center;
+    margin-top:0;
+}
+
+#res 
+{
+    font-family: Helvetica;
+    text-align: center;
+    font-size: 15px;
+    background-color:gray;
+    color:white;
+    margin-top:0;
+
+}
+
+.save_file_form
+{
+   font-family: Helvetica;
+   margin-left: 5px;
+
+}
+
+#save_file_txt_box
+{
+    -webkit-border-radius: 10px;
+    width:200px;
+    height:20px;
+}
+.gray {
+color: white;
+border: solid 1px #cccccc;
+background: -webkit-gradient(linear, left top, left bottom, from(#7D7D7D), to(#7E7E7E));
+}
+.gray:hover {
+background: -webkit-gradient(linear, left top, left bottom, from(#6B6B6B), to(#6c6c6c));
+}
+.gray:active {
+color: #80bed6;
+background: -webkit-gradient(linear, left top, left bottom, from(#909090), to(#929292));
+}
+.button {
+display: inline-block;
+vertical-align: baseline;
+margin: 0 2px;
+cursor: pointer;
+text-align: center;
+text-decoration: none;
+font: 14px/100% Arial, Helvetica, sans-serif;
+padding: .5em 2em .55em;
+text-shadow: 0 1px 1px rgba(0,0,0,.3);
+-webkit-border-radius: .5em; 
+-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+
+.button:active {
+position: relative;
+top: 1px;
+}
+
+.file_select
+{
+font-family:helvetica;
+margin-left:5px;
+}
+
+
+.res_list_i
+{
+    font-family:Helvetica;
+    margin-left:15px;
+    font-size: 15px;
+}
