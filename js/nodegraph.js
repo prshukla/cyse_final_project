@@ -17,10 +17,13 @@ function NodeGraph(){
   var key = {};
   var SHIFT = 16;
   var topHeight = $("#mainhdr").height();
+  // prashant change
+  var resWidth  = $("#browse_info").width();
+  
   var paper = new Raphael("canvas", "100", "100");
   
   function resizePaper(){
-    paper.setSize(win.width(), win.height() - topHeight);
+    paper.setSize(win.width() - resWidth, win.height() - topHeight);
   }
   win.resize(resizePaper);
   resizePaper();
@@ -35,7 +38,7 @@ function NodeGraph(){
   hitConnect.css({"position" : "absolute", "left" : 100, "top" : 0, "z-index" : 4000, "border" : "none", 
                   "width" : 10, "height": 10, "cursor":"pointer", "font-size": "1px"});
                   
-  $("#menu1  li").hover(function(){
+  $("#menu1 li").hover(function(){
     $(this).css("background-color", "#cccccc");
   },
   function(){
@@ -60,12 +63,16 @@ function NodeGraph(){
     }else if (dir == "right"){
       x = pathEnd.x - currentNode.width() - 5;
       y = pathEnd.y + topHeight - currentNode.height() / 2;
-    }else if (dir == "top"){
+    }else if (dir == "top"){  
       x = pathEnd.x - currentNode.width() / 2;
-      y = pathEnd.y + topHeight + 5;
+      //prashant change 
+      //y = pathEnd.y + topHeight + 5 ;
+      y = pathEnd.y + topHeight - 50 ;
     }else if (dir == "bottom"){
-      x = pathEnd.x - currentNode.width() / 2;
-      y = pathEnd.y + topHeight - 5 - currentNode.height();
+      x = pathEnd.x - currentNode.width() / 2 ;
+     // prashant change
+     y = pathEnd.y + topHeight - currentNode.height() -50;
+     // y = pathEnd.y + topHeight - 5 - currentNode.height();
     }
     
  
@@ -102,6 +109,7 @@ function NodeGraph(){
     node.addConnection(currentConnection);
     
     $(currentConnection.node).mouseenter(function(){
+        //alert("entering mounse enter")
       this.raphael.attr("stroke","#FF0000");
     }).mouseleave(function(){
       this.raphael.attr("stroke","#000000");
@@ -129,7 +137,9 @@ function NodeGraph(){
   });
   
   $(document).mousemove(function(e){
-    mouseX = e.pageX;
+    // Prashant Change
+    //mouseX = e.pageX ;
+    mouseX = e.pageX - resWidth;
     mouseY = e.pageY - topHeight;
   }).mouseup(function(e){
     overlay.hide();
@@ -164,12 +174,14 @@ function NodeGraph(){
     hitConnect.css("left", "-100px");
     
     if (newNode){
+        //alert("entering newNode")
       if (key[SHIFT]){
         menu.css({"left":mouseX - 10, "top":mouseY});
         menu.show();
       }else{
         var dir;
         var currDir = currentConnection.parent.attr("class");
+       
         if (currDir == "left"){
           dir = "right";
         }else if (currDir == "right"){
@@ -281,7 +293,7 @@ function NodeGraph(){
     n.append("<div class='bar'/>");
     var bar = $(".node .bar").last();
     bar.css({"height" : "10px", 
-             "background-color" : "gray", 
+             "background-color" : "red", 
              "padding" : "0", "margin": "0",
              "font-size" : "9px", "cursor" : "pointer"});
              
@@ -356,10 +368,11 @@ function NodeGraph(){
     this.top = top;
     this.bottom = bottom;
     
+    
     function positionLeft(){
       left.css("top", n.height() / 2 - 5);
     }
-    function positionRight(){
+    function positionRight(){ 
       right.css("left",n.width() + 1).css("top", n.height() / 2 - 5);
     }
     function positionTop(){
@@ -380,7 +393,7 @@ function NodeGraph(){
       var nLoc = n.position();
       var point = {};
       point.x = nLoc.left + loc.left + 5;
-      point.y = nLoc.top - topHeight + loc.top + 5;
+      point.y = nLoc.top - topHeight + loc.top + 50;
       return point;
     }
     
@@ -399,6 +412,7 @@ function NodeGraph(){
     
     
    function addLink(e){
+       //alert("entering addlink")
       currentNode = curr;
       e.preventDefault();
       showOverlay();
@@ -410,8 +424,13 @@ function NodeGraph(){
       curr.addConnection(link);
       var loc = $(this).position();
       var nLoc = n.position();
-      var x = loc.left + nLoc.left + 5;
-      var y = loc.top + nLoc.top - topHeight + 5;
+      
+      
+       var x = loc.left + nLoc.left + 5;
+      // changed prashant 
+      // var y = loc.top + nLoc.top - topHeight + 5;
+      var y = loc.top + nLoc.top - topHeight + 50;
+      //alert(x);
       newNode = true;
       
       var id = setInterval(function(){
@@ -438,6 +457,8 @@ function NodeGraph(){
      delete nodes[this.id];
    }
     
+    // Prashant Comment
+    // This method looks good
     resizer.mousedown(function(e){
       currentNode = curr;
       e.preventDefault();
@@ -458,7 +479,8 @@ function NodeGraph(){
         updateConnections();
       });
     });
-    
+    // prashant comment
+    // These methods look good 
     bar.mousedown(function(e){
       currentNode = curr;
       n.css("z-index", zindex++);
@@ -517,12 +539,13 @@ function NodeGraph(){
   
   var defaultWidth = 100;
   var defaultHeight = 50;
-  
+  // might need some tweeking 
   this.addNodeAtMouse = function(){
     //alert("Zevan");
     var w = currentNode.width() || defaultWidth;
     var h = currentNode.height () || defaultHeight;
-    var temp = new Node(mouseX, mouseY + 30, w, h);
+    // Prashant made a change 
+    var temp = new Node(mouseX - resWidth/2 + 40, mouseY + 20, w, h);
     currentNode = temp;
     currentConnection = null;
   }

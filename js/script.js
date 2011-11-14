@@ -19,6 +19,7 @@ $('#browse_info').hide();
             }
         }
       }
+      
   });
   
 
@@ -86,9 +87,6 @@ function savecwd(){
     g_cwd_path = name;
 
 }
-
-
-
 });
 
 function open_file(form)
@@ -144,7 +142,7 @@ function save_file(form)
             var filename = g_cwd_path + filepath;
             alert(filename);
             //$('#browse_info').show();
-            $.post("save.php",{ "name" : filename, "data" : "this is nice world" }, function(data){
+            $.post("save.php",{"name" : filename, "data" : "this is nice world"}, function(data){
                 alert(data);
             });
         }
@@ -153,21 +151,22 @@ function save_file(form)
 function addimg()
 {   
     $("#browse_info").css({"height":"200px"}); 
-    $('<a id="expand" href="#"> <img  src="images/expand.png"></a>').insertAfter("#res");
-    //$("#expand").css({"margin-left":"10px"});
-    
+    $('<a id="expand" href="#"> <img  src="images/expand.png"></a> project').insertAfter("#res");
     $("#expand").click(function(event){
         $("#expand").hide();
-        $('<a id="collapse" href="#"> <img  src="images/contract.png"></a>').insertAfter("#res");
+        $('<a id="collapse" href="#"> <img  src="images/contract.png"> </a> project').insertAfter("#res");
         $('<ul id="res_list">').insertAfter("#collapse");
-        for (i = 0; i < g_res_list.length -1; i++)
+        for (i = g_res_list.length - 2 ; i >=  0  ; i--)
         {
-            var tag = '<li class="res_list_i" id=res_list_' + i + ">"  + g_res_list[i] + "</li>" ;
-
+            var tag = '<li class="res_list_i" id=res_list_' + i + ">" + '<a class="file_ref" id="#' +
+                g_res_list[i] + '">' + g_res_list[i]  +  "</a></span></li>" ;
+            //alert(tag);    
             $(tag).insertAfter("#res_list");
+            $(tag).css({width: '210px'});
+            $(tag).addClass("file_ref");
             if (i > 5)
             {
-                var height = $("#browse_info").height() + 20 ;
+                var height = $("#browse_info").height() + 18 ;
                 var height_txt = height + 'px';
                 $("#browse_info").css({"height":height_txt}); 
             }
@@ -198,13 +197,51 @@ function scan_cwd()
     else
     {
         // list all the files in the cwd
-        $.post("scandir.php",{ "name" : g_cwd_path }, function(data){
+        $.post("scandir.php",{"name" : g_cwd_path}, function(data){
                 if (g_res_list == null)
                     g_res_list = new Array();
                 g_res_list = data.split("<br>");
                 $("#file_open").hide();
                 $('#browse_info').show();
                 addimg();
+                if (g_node_graph_obj == null)
+                   g_node_graph_obj = new NodeGraph(); 
+                   
+                // open the html files and determine the list of js file
+                for (i = 0; i < g_res_list.length; i++)
+                {
+                    var file_name = g_res_list[i];
+                    if ( file_name.indexOf(".html") != -1)
+                    {
+                        //alert (file_name + " is html file")
+                        // open the file and look for all script files
+                        
+                    }
+                    else if (file_name.indexOf(".js") != -1)
+                    {
+                        //alert (file_name + " is javascript file")
+                        file_name = g_cwd_path + file_name;
+                        $.post("openfile.php",{name : file_name}, function(data){
+                           // g_node_graph_obj.addNode(300,300,300,true);
+                        });
+                        
+                    }
+                    else if ( file_name.indexOf(".css") != -1)
+                    {
+                        //alert(file_name + " is a css file")
+                    }
+                    else if ( file_name.indexOf(".png") != -1) 
+                    {
+                        //alert(file_name + " image file")
+                    }
+                    else if (file_name.indexOf(".php") != -1)
+                    {
+                       // alert(file_name + " is a php file")
+                    }
+                        
+                        
+                        
+                }
             });
     }
 }
