@@ -16,13 +16,17 @@ function NodeGraph(){
   var hitConnect;
   var key = {};
   var SHIFT = 16;
-  var topHeight = $("#mainhdr").height();
-  // prashant change
-  var resWidth  = $("#browse_info").width();
+  // Prashant Change
+  // added 20 to compensate for margins
+  var topHeight = $("#mainhdr").height() + 20;
+  // Prashant change
+  // added 20 to compensate for the margins
+  var resWidth  = $("#browse_info").width() + 20; 
   
   var paper = new Raphael("canvas", "100", "100");
   
   function resizePaper(){
+
     paper.setSize(win.width() - resWidth, win.height() - topHeight);
   }
   win.resize(resizePaper);
@@ -35,7 +39,7 @@ function NodeGraph(){
   
   canvas.append("<div id='hit' />");
   hitConnect = $("#hit");
-  hitConnect.css({"position" : "absolute", "left" : 100, "top" : 0, "z-index" : 4000, "border" : "none", 
+  hitConnect.css({"position" : "absolute", "left" : 350, "top" : 0, "z-index" : 4000, "border" : "none", 
                   "width" : 10, "height": 10, "cursor":"pointer", "font-size": "1px"});
                   
   $("#menu1 li").hover(function(){
@@ -52,26 +56,29 @@ function NodeGraph(){
   function connectNode(dir){
     var node, x, y;
     dir = dir.toLowerCase();
-    
-    
-    
       
     if (dir == "left"){
+        //alert("left");
+      // prashant change   
+      //x = pathEnd.x + 5;
       x = pathEnd.x + 5;
-      y = pathEnd.y + topHeight - currentNode.height() / 2;
+      //y = pathEnd.y + topHeight - currentNode.height() / 2;
+      y = pathEnd.y - currentNode.height() / 2 -1;
       
     }else if (dir == "right"){
       x = pathEnd.x - currentNode.width() - 5;
-      y = pathEnd.y + topHeight - currentNode.height() / 2;
+      // Prashant Change 
+      //y = pathEnd.y + topHeight - currentNode.height() / 2;
+      y = pathEnd.y  - currentNode.height() / 2 + 7;
     }else if (dir == "top"){  
       x = pathEnd.x - currentNode.width() / 2;
       //prashant change 
       //y = pathEnd.y + topHeight + 5 ;
-      y = pathEnd.y + topHeight - 50 ;
+      y = pathEnd.y + 5;
     }else if (dir == "bottom"){
       x = pathEnd.x - currentNode.width() / 2 ;
      // prashant change
-     y = pathEnd.y + topHeight - currentNode.height() -50;
+     y = pathEnd.y  - currentNode.height() + 7  ;
      // y = pathEnd.y + topHeight - 5 - currentNode.height();
     }
     
@@ -108,8 +115,7 @@ function NodeGraph(){
     currentNode.updateConnections();
     node.addConnection(currentConnection);
     
-    $(currentConnection.node).mouseenter(function(){
-        //alert("entering mounse enter")
+    $(currentConnection.node).mouseenter(function(){        
       this.raphael.attr("stroke","#FF0000");
     }).mouseleave(function(){
       this.raphael.attr("stroke","#000000");
@@ -120,9 +126,11 @@ function NodeGraph(){
       }
     });
   }
-  
+  // Prashant Comment 
+  // This method is working fine
   canvas.mousedown(function(e){
     if (menu.css("display") == "block"){
+
       if (e.target.tagName != "LI"){
         menu.hide();
         currentConnection.remove();
@@ -144,8 +152,9 @@ function NodeGraph(){
   }).mouseup(function(e){
     overlay.hide();
     var creatingNewNode = newNode;
-    
-    hitConnect.css({"left":mouseX - 5, "top":mouseY + topHeight - 5});
+    // Prashant Change
+    //hitConnect.css({"left":mouseX - 5, "top":mouseY + topHeight - 5});
+    hitConnect.css({"left":mouseX - 5, "top":mouseY - 5});
     for (var i in nodes){
       if (nodes[i]){
         var n = nodes[i];
@@ -184,7 +193,7 @@ function NodeGraph(){
        
         if (currDir == "left"){
           dir = "right";
-        }else if (currDir == "right"){
+        }else if (currDir  == "right"){
           dir = "left";
         }else if (currDir == "top"){
           dir = "bottom";
@@ -393,7 +402,9 @@ function NodeGraph(){
       var nLoc = n.position();
       var point = {};
       point.x = nLoc.left + loc.left + 5;
-      point.y = nLoc.top - topHeight + loc.top + 50;
+      // prashant Change
+      //point.y = nLoc.top - topHeight + loc.top + 50;
+      point.y = nLoc.top + loc.top + 7 ;
       return point;
     }
     
@@ -429,7 +440,7 @@ function NodeGraph(){
        var x = loc.left + nLoc.left + 5;
       // changed prashant 
       // var y = loc.top + nLoc.top - topHeight + 5;
-      var y = loc.top + nLoc.top - topHeight + 50;
+      var y = loc.top + nLoc.top + 7;
       //alert(x);
       newNode = true;
       
@@ -509,6 +520,8 @@ function NodeGraph(){
     var bTop = bPos.top;
     var bBottom = bPos.top + b.height();
     
+    //alert ("aleft " + aLeft + " aRight " + aRight + " aTop " + aTop + " aBottom " + aBottom  + 
+     //       " bLeft" + bLeft + " bRight " + bRight +  " bTop " + bTop + " bBottom " + bBottom);
     // http://tekpool.wordpress.com/2006/10/11/rectangle-intersection-determine-if-two-given-rectangles-intersect-each-other-or-not/
     return !( bLeft > aRight
       || bRight < aLeft
@@ -545,7 +558,7 @@ function NodeGraph(){
     var w = currentNode.width() || defaultWidth;
     var h = currentNode.height () || defaultHeight;
     // Prashant made a change 
-    var temp = new Node(mouseX - resWidth/2 + 40, mouseY + 20, w, h);
+    var temp = new Node(mouseX - resWidth/2 + 40, mouseY , w, h);
     currentNode = temp;
     currentConnection = null;
   }

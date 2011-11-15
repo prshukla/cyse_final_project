@@ -89,6 +89,7 @@ nav#menu ul li a:hover
 
 #browse_info
 {
+    display:block;
     width: 220px;
     border-color: gray;
     border-style: solid;
@@ -189,5 +190,11 @@ margin-left:5px;
 
 #canvas
 {
-    position: absolute;top:20px; left:240px;
+    position: absolute;top:50px; left:240px;
+}
+
+#file_scan_button
+{
+    font-family:Helvetica;
+    font-size: 15px;
 }

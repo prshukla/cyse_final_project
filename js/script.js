@@ -1,6 +1,14 @@
 var g_cwd_path = "";
 var g_node_graph_obj = null;
 var g_res_list = null;
+var g_res_js_list = null;
+var g_res_png_list = null;
+var g_res_html_list = null;
+var g_res_php_list = null;
+var g_res_css_list = null;
+var projectName = null;
+
+
 $(function(){
 
 $("#file_open").hide();
@@ -148,13 +156,25 @@ function save_file(form)
         }
     }    
 }
-function addimg()
+function addimg(projectName)
 {   
+    // first create the resources box
     $("#browse_info").css({"height":"200px"}); 
-    $('<a id="expand" href="#"> <img  src="images/expand.png"></a> project').insertAfter("#res");
+    // Then create the exand button
+    if (projectName == null)
+    {
+        projectName = ' Project Name';
+    }
+    var prjExpandTag = '<a id="expand" href="#"> <img  src="images/expand.png"><span class=file_ref >' + projectName + 
+        '</span> </a>' ;
+    var prjCollapseTag = '<a id="collapse" href="#"> <img  src="images/contract.png"><span class=file_ref >' + projectName + 
+        '</span> </a>' ;
+        
+    $(prjExpandTag).insertAfter("#res");
+    
     $("#expand").click(function(event){
         $("#expand").hide();
-        $('<a id="collapse" href="#"> <img  src="images/contract.png"> </a> project').insertAfter("#res");
+        $(prjCollapseTag).insertAfter("#res");
         $('<ul id="res_list">').insertAfter("#collapse");
         for (i = g_res_list.length - 2 ; i >=  0  ; i--)
         {
@@ -221,16 +241,23 @@ function scan_cwd()
                     {
                         //alert (file_name + " is javascript file")
                         file_name = g_cwd_path + file_name;
+                        if (g_res_js_list == null)
+                        {
+                            g_res_js_list = new Array;
+                        }
+                        g_res_js_list[g_res_js_list.length] = file_name;
                         $.post("openfile.php",{name : file_name}, function(data){
-                           // g_node_graph_obj.addNode(300,300,300,true);
+                             //g_node_graph_obj.addNode(300,300,300,300,true);
                         });
                         
                     }
                     else if ( file_name.indexOf(".css") != -1)
                     {
-                        //alert(file_name + " is a css file")
+                        if (g_res_css_list == null)
+                            g_res_css_list = new Array;
+                        g_res_css_list[g_res_css_list.length] = file_name;
                     }
-                    else if ( file_name.indexOf(".png") != -1) 
+                    else if ( file_name.indexOf(".png") != -1)  
                     {
                         //alert(file_name + " image file")
                     }
