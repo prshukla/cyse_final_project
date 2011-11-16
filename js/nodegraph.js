@@ -377,7 +377,11 @@ function NodeGraph(){
     this.top = top;
     this.bottom = bottom;
     
-    
+    this.addText = function(val)
+    {
+        alert(val);
+        this.txt.val(val);
+    }
     function positionLeft(){
       left.css("top", n.height() / 2 - 5);
     }
@@ -541,7 +545,7 @@ function NodeGraph(){
   
   this.clearAll = function(){
     clear();
-    defaultNode();
+    //defaultNode();
     currentConnection = null;
     currenNode = null;
   }
@@ -571,7 +575,7 @@ function NodeGraph(){
     temp.txt[0].focus();
     currentNode = temp;
   }
-  defaultNode();
+  //defaultNode();
 
   this.fromJSON = function(data){
     clear();

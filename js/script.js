@@ -93,6 +93,7 @@ function savecwd(){
     if (index == -1)
         name += "\\";
     g_cwd_path = name;
+    alert ("The current working directory has been set to " + g_cwd_path);
 
 }
 });
@@ -245,11 +246,9 @@ function scan_cwd()
                         {
                             g_res_js_list = new Array;
                         }
-                        g_res_js_list[g_res_js_list.length] = file_name;
-                        $.post("openfile.php",{name : file_name}, function(data){
-                             //g_node_graph_obj.addNode(300,300,300,300,true);
-                        });
+                        g_res_js_list[g_res_js_list.length] = new jsResourceInfo().createInstance(file_name);
                         
+                       
                     }
                     else if ( file_name.indexOf(".css") != -1)
                     {
