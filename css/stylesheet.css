@@ -168,18 +168,25 @@ margin-left:5px;
 }
 
 
-.res_list_i
+.project_name
 {
     font-family:Helvetica;
-    margin-left:15px;
-    font-size: 15px;
+    margin-left:5px;
+    font-size: 12px;
+    color:gray;
+}
+
+.project_name:hover
+{
+   color:darkgray; 
 }
 
 .file_ref
 {
+    margin-left: 20px;
     font-family:Helvetica;
     width: 240px;
-    font-size: 15px;
+    font-size: 12px;
     color:gray;
 }
 
@@ -198,3 +205,15 @@ margin-left:5px;
     font-family:Helvetica;
     font-size: 15px;
 }
+/*
+#submenu li{
+  list-style : none;
+  font-size : 12px;
+  margin: 0;
+  cursor : pointer;
+  background-color : white;
+  font-family : Helvetica;
+  border-bottom : 1px solid #cccccc;
+  padding : 5px 10px 5px 10px;
+}
+*/

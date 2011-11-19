@@ -8,21 +8,29 @@ function resourceInfo()
    this.fileContent = null;
    this.node = null;
    
-    this.createResourceInfo = function(name)
-    {
+   this.showNode = function()
+   {
+       this.node.show();
+   }
+   
+   this.hideNode = function()
+   {
+       this.node.hide();
+   }
+   this.createResourceInfo = function(name)
+   {
         this.filename  = name;
-        this.node = g_node_graph_obj.addNode(init_x_axis,init_y_axis,300,300,false);
-        init_x_axis += 30;
-        init_y_axis += 20;
+        this.node = g_node_graph_obj.addNode(init_x_axis,init_y_axis,600,800,false,name);
         g_resource_array [g_resource_array.length] = this.node
+        this.node.hide();
         return this;
-    }
+   }
     
-    this.initContent = function(content)
-    {
+   this.initContent = function(content)
+   {
         this.fileContent = content;
         this.node.addText(content);
-    }
+   }
     
     
 }

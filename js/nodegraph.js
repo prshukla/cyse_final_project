@@ -34,8 +34,22 @@ function NodeGraph(){
   
   canvas.append("<ul id='menu1'><li>Left<\/li><li>Right<\/li><li>Top<\/li><li>Bottom<\/li><\/ul>");
   var menu = $("#menu1");
+  
   menu.css({"position" : "absolute", "left" : 100, "top" : 0, "z-index" : 5000, "border" : "1px solid gray", "padding" : 0});
+
+   $("#menu1 li").css({"list-style" : "none", "font-size": "10px" ,  "margin": 0 , "cursor": "pointer", "background-color": "white",
+        "font-family" : "Helvetica","border-bottom" : "1px solid #cccccc", "padding" : "5px 10px 5px 10px"});
   menu.hide();
+ canvas. append ("<ul id='submenu'><li>Save<\/li><li>exit<\/li>" );
+ var submenu = $("#submenu");
+ submenu.css({"position" : "absolute", "left" : 100, "top" : 0, "z-index" : 5000, "border" : "1px solid gray", "padding" : 0});
+  
+  var li = $("#submenu li")
+  li.css({"list-style" : "none", "font-size": "10px" ,  "margin": 0 , "cursor": "pointer", "background-color": "white",
+        "font-family" : "Helvetica","border-bottom" : "1px solid #cccccc", "padding" : "5px 10px 5px 10px"
+  })
+ 
+  submenu.hide();
   
   canvas.append("<div id='hit' />");
   hitConnect = $("#hit");
@@ -51,6 +65,18 @@ function NodeGraph(){
     menu.hide();
     var dir = $(this).text();
     connectNode(dir);
+  });
+  
+  $("#submenu li").hover(function(){
+    $(this).css("background-color", "#cccccc");
+  }, 
+  function () {
+      $(this).css("background-color","white");
+  }).click(function(){
+     submenu.hide();
+     var cmd = $(this).text();
+     currentNode.changeMenuVisible(false);
+     currentNode.executecmd(cmd);
   });
   
   function connectNode(dir){
@@ -254,8 +280,9 @@ function NodeGraph(){
   }
   
   
-  function Node(xp, yp, w, h, noDelete, forceId){
+  function Node(xp, yp, w, h, title, noDelete, forceId){
     
+
     if (forceId){
        nodeId = forceId;
     }
@@ -264,6 +291,7 @@ function NodeGraph(){
     nodeId++;
     
     var curr = this;
+    var ismenuvisible = false;
     this.connections = {};
     var connectionIndex = 0;
     
@@ -282,7 +310,7 @@ function NodeGraph(){
     n.css("z-index", zindex++);
            
     this.content = n;
-    
+    var page_title ="";
     this.width = function(){
       return n.width();
     }
@@ -295,37 +323,69 @@ function NodeGraph(){
     this.y = function(){
       return n.position().top;
     }
-         
+    
+    this.changeMenuVisible = function(val)
+    {
+        ismenuvisible = val;
+    }
     var nodeWidth = n.width();
     var nodeHeight = n.height();
-           
-    n.append("<div class='bar'/>");
+    page_title = title;
+    var bar =  "<div class='bar'>" + title + "</div>"      
+    n.append(bar);
     var bar = $(".node .bar").last();
-    bar.css({"height" : "10px", 
-             "background-color" : "red", 
-             "padding" : "0", "margin": "0",
-             "font-size" : "9px", "cursor" : "pointer"});
+    bar.css({"height" : "13px", 
+             "background-color" : "Gray", "font-family" : "Helvetica",
+             "padding" : "0", "margin": "0","color": "white",
+             "font-size" : "10px","text-align" : "center" , "cursor" : "pointer"});
              
              
     if (!noDelete){
-      n.append("<div class='ex'>X<\/div>");
+      n.append("<div class='ex'>V<\/div>");
       var ex = $(".node .ex").last();
       ex.css({"position":"absolute","padding-right" : 2, "padding-top" : 1, "padding-left" : 2,
               "color" : "white", "font-family" : "sans-serif",
               "top" : 0, "left": 0, "cursor": "pointer",
-              "font-size" : "7px", "background-color" : "gray", "z-index" : 100});
+              "font-size" : "9px", "background-color" : "gray", "z-index" : 100}); 
+        
       ex.hover(function(){
-        ex.css("color","black");
+          if (ismenuvisible == false)
+          {
+              ismenuvisible = true;
+              submenu.css({"left":mouseX -5, "top":mouseY - 5});  
+              submenu.show();
+          }      
       }, function(){
-        ex.css("color","white");
+
       }).click(function(){
-      
-        if (confirm("Are you sure you want to delete this node?")){
-          curr.remove();
-        }
+          submenu.hide();
       });
+      
+      
+    }
+    this.executecmd = function(cmd)
+    {
+       if (cmd == "exit") {
+         if (confirm("Are you sure you want to close this node?")){
+            curr.remove();
+         }
+       } else if (cmd == "Save") {
+           if(confirm("Are you sure you want to save this file")){
+               if (page_title != null && page_title.length > 0)
+               save_file(page_title, this.txt.val());
+           }
+       }
+    }
+    this.hide= function()
+    {
+        this.content.hide();
     }
    
+    this.show = function()
+    {
+        currentNode = curr;
+        this.content.show();
+    }
     n.append("<textarea class='txt' spellcheck='false' />");
     var txt = $(".node .txt").last();
     txt.css("position","absolute");
@@ -379,7 +439,6 @@ function NodeGraph(){
     
     this.addText = function(val)
     {
-        alert(val);
         this.txt.val(val);
     }
     function positionLeft(){
@@ -550,8 +609,8 @@ function NodeGraph(){
     currenNode = null;
   }
   
-  this.addNode = function(x, y, w, h, noDelete){
-    return new Node(x, y, w, h, noDelete);
+  this.addNode = function(x, y, w, h, noDelete,title){
+    return new Node(x, y, w, h, title ,noDelete);
   }
   
   var defaultWidth = 100;
@@ -559,10 +618,19 @@ function NodeGraph(){
   // might need some tweeking 
   this.addNodeAtMouse = function(){
     //alert("Zevan");
-    var w = currentNode.width() || defaultWidth;
-    var h = currentNode.height () || defaultHeight;
+    var w,h = null;
+    if (currentNode  == null)
+    {
+        w = defaultWidth;
+        h = defaultHeight;
+    }
+    else
+    {
+         w = currentNode.width() || defaultWidth;
+         h = currentNode.height () || defaultHeight;
+    }
     // Prashant made a change 
-    var temp = new Node(mouseX - resWidth/2 + 40, mouseY , w, h);
+    var temp = new Node(mouseX - resWidth/2 + 40, mouseY , w, h, "");
     currentNode = temp;
     currentConnection = null;
   }
@@ -571,7 +639,7 @@ function NodeGraph(){
     
     var temp = new Node(win.width() / 2 - defaultWidth / 2, 
                         win.height() / 2 - defaultHeight / 2,
-                        defaultWidth, defaultHeight, true);
+                        defaultWidth, defaultHeight, "" ,true);
     temp.txt[0].focus();
     currentNode = temp;
   }
@@ -582,7 +650,7 @@ function NodeGraph(){
     for (var i in data.nodes){
       var n = data.nodes[i];
       var ex = (i == "0") ? true : false;
-      var temp = new Node(n.x, n.y, n.width, n.height, ex, n.id);
+      var temp = new Node(n.x, n.y, n.width, n.height, "", ex, n.id);
       var addreturns = n.txt.replace(/\\n/g,'\n');
       temp.txt.val(addreturns);
     }

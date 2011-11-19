@@ -151,24 +151,27 @@ function save_file(form)
             var filename = g_cwd_path + filepath;
             alert(filename);
             //$('#browse_info').show();
-            $.post("save.php",{"name" : filename, "data" : "this is nice world"}, function(data){
+            $.post("save.php",{"name" : filename}, function(data){
                 alert(data);
             });
         }
     }    
 }
-function addimg(projectName)
+// 
+// This function takes care of the resource info 
+// 
+function browse_resources(projectName)
 {   
     // first create the resources box
     $("#browse_info").css({"height":"200px"}); 
     // Then create the exand button
     if (projectName == null)
     {
-        projectName = ' Project Name';
+        projectName = ' Project';
     }
-    var prjExpandTag = '<a id="expand" href="#"> <img  src="images/expand.png"><span class=file_ref >' + projectName + 
+    var prjExpandTag = '<a id="expand" href="#" > <img  src="images/expand.png"><span class="project_name">' + projectName + 
         '</span> </a>' ;
-    var prjCollapseTag = '<a id="collapse" href="#"> <img  src="images/contract.png"><span class=file_ref >' + projectName + 
+    var prjCollapseTag = '<a id="collapse" href="#" class="project_name"> <img  src="images/contract.png"><span class="project_name ">' +  projectName + 
         '</span> </a>' ;
         
     $(prjExpandTag).insertAfter("#res");
@@ -176,99 +179,93 @@ function addimg(projectName)
     $("#expand").click(function(event){
         $("#expand").hide();
         $(prjCollapseTag).insertAfter("#res");
-        $('<ul id="res_list">').insertAfter("#collapse");
-        for (i = g_res_list.length - 2 ; i >=  0  ; i--)
-        {
-            var tag = '<li class="res_list_i" id=res_list_' + i + ">" + '<a class="file_ref" id="#' +
-                g_res_list[i] + '">' + g_res_list[i]  +  "</a></span></li>" ;
-            //alert(tag);    
-            $(tag).insertAfter("#res_list");
-            $(tag).css({width: '210px'});
-            $(tag).addClass("file_ref");
-            if (i > 5)
-            {
-                var height = $("#browse_info").height() + 18 ;
+        var filelist = '$( <div id="res_list">)';
+        $(filelist).insertAfter("#collapse");
+        var res_list = $("#res_list");
+
+        for (i = 1 ; i < g_res_list.length -1  ; i++) {
+            var filetag = '<div class =file_ref>' +  g_res_list[i] + '</div>'; 
+            res_list.append(filetag);
+            if (i > 5) {
+                var height = $("#browse_info").height() + 16 ;
                 var height_txt = height + 'px';
                 $("#browse_info").css({"height":height_txt}); 
-            }
- 
+            }           
         }
+        $(".file_ref").live('click',function() {
+            var filename = $(this).text();
+                
+            if (filename.indexOf("js") != -1)
+            {
+                filename = g_cwd_path + filename 
+                for (i in g_res_js_list) {
+                    if (g_res_js_list[i].filename == filename)
+                        g_res_js_list[i].showNode();
+                    else
+                       g_res_js_list[i].hideNode();
+                }
+            }
+        });
+        
         $("#collapse").click(function(event){           
         $('#res_list').remove(); 
-        for (i = 0 ; i < g_res_list.length -1; i++)
-        {
-           var tag = "#res_list_" + i;
-           $(tag).remove();
-        }
         $("#browse_info").css({"height":"200px"}); 
         $("#collapse").hide();
         $("#expand").show();
     });
 
     });
-    
 }
 
 function scan_cwd()
 {
-  if (g_cwd_path == "")
-    {
+    if (g_cwd_path == "") {
         alert("please enter the current working directory")
-    }
-    else
-    {
+    } else {
         // list all the files in the cwd
-        $.post("scandir.php",{"name" : g_cwd_path}, function(data){
-                if (g_res_list == null)
-                    g_res_list = new Array();
-                g_res_list = data.split("<br>");
-                $("#file_open").hide();
-                $('#browse_info').show();
-                addimg();
-                if (g_node_graph_obj == null)
-                   g_node_graph_obj = new NodeGraph(); 
+        $.post("scandir.php",{"name" : g_cwd_path, "isdir" : false }, function(data){
+            if (g_res_list == null)
+                g_res_list = new Array();
+            g_res_list = data.split("<br>");
+            $("#file_open").hide();
+            $('#browse_info').show();
+            browse_resources();
+            if (g_node_graph_obj == null)
+                g_node_graph_obj = new NodeGraph(); 
                    
-                // open the html files and determine the list of js file
-                for (i = 0; i < g_res_list.length; i++)
-                {
-                    var file_name = g_res_list[i];
-                    if ( file_name.indexOf(".html") != -1)
-                    {
-                        //alert (file_name + " is html file")
-                        // open the file and look for all script files
+            // open the html files and determine the list of js file
+            for (i = 0; i < g_res_list.length; i++) {
+                var file_name = g_res_list[i];
+                if ( file_name.indexOf(".html") != -1) {
+                   //alert (file_name + " is html file")
+                   // open the file and look for all script files
+                } else if (file_name.indexOf(".js") != -1) {
+                   //alert (file_name + " is javascript file")
+                   file_name = g_cwd_path + file_name;
+                   if (g_res_js_list == null) {
+                      g_res_js_list = new Array;
+                   }
+                   g_res_js_list[g_res_js_list.length] = new jsResourceInfo().createInstance(file_name);                      
+                
+                }  else if ( file_name.indexOf(".css") != -1) {
                         
-                    }
-                    else if (file_name.indexOf(".js") != -1)
-                    {
-                        //alert (file_name + " is javascript file")
-                        file_name = g_cwd_path + file_name;
-                        if (g_res_js_list == null)
-                        {
-                            g_res_js_list = new Array;
-                        }
-                        g_res_js_list[g_res_js_list.length] = new jsResourceInfo().createInstance(file_name);
-                        
-                       
-                    }
-                    else if ( file_name.indexOf(".css") != -1)
-                    {
-                        if (g_res_css_list == null)
-                            g_res_css_list = new Array;
-                        g_res_css_list[g_res_css_list.length] = file_name;
-                    }
-                    else if ( file_name.indexOf(".png") != -1)  
-                    {
+                    if (g_res_css_list == null)
+                        g_res_css_list = new Array;
+                    
+                    g_res_css_list[g_res_css_list.length] = file_name;
+                }  else if ( file_name.indexOf(".png") != -1)  {
                         //alert(file_name + " image file")
-                    }
-                    else if (file_name.indexOf(".php") != -1)
-                    {
+                }  else if (file_name.indexOf(".php") != -1) {
                        // alert(file_name + " is a php file")
-                    }
-                        
-                        
-                        
-                }
-            });
+                }                        
+             }
+        });
     }
 }
 
+function save_file(filename,text)
+{
+    $.post("save.php",{"name" : filename, "data" : text}, function(data){
+                alert(data);
+            });
+}
