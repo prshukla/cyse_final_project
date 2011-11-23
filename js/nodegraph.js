@@ -40,7 +40,7 @@ function NodeGraph(){
    $("#menu1 li").css({"list-style" : "none", "font-size": "10px" ,  "margin": 0 , "cursor": "pointer", "background-color": "white",
         "font-family" : "Helvetica","border-bottom" : "1px solid #cccccc", "padding" : "5px 10px 5px 10px"});
   menu.hide();
- canvas. append ("<ul id='submenu'><li>Save<\/li><li>exit<\/li>" );
+ canvas. append ("<ul id='submenu'><li>Save<\/li><li>Save As<\/li><li>cancel<\/li><li>exit<\/li>" );
  var submenu = $("#submenu");
  submenu.css({"position" : "absolute", "left" : 100, "top" : 0, "z-index" : 5000, "border" : "1px solid gray", "padding" : 0});
   
@@ -75,7 +75,6 @@ function NodeGraph(){
   }).click(function(){
      submenu.hide();
      var cmd = $(this).text();
-     currentNode.changeMenuVisible(false);
      currentNode.executecmd(cmd);
   });
   
@@ -259,7 +258,7 @@ function NodeGraph(){
     overlay.css({"width" : win.width(), "height" : win.height()}); //, "opacity": 0.1});
   }
   
-  function startDrag(element, bounds, dragCallback){
+  function startDrag(element, updateloc, bounds, dragCallback){
     showOverlay();
     var startX = mouseX - element.position().left;
     var startY = mouseY - element.position().top;
@@ -274,6 +273,7 @@ function NodeGraph(){
         if (y > bounds.bottom) y = bounds.bottom;
       }
       element.css("left", x).css("top",y);
+
       dragCallback();
     },topHeight);
     loops.push(id);
@@ -291,7 +291,6 @@ function NodeGraph(){
     nodeId++;
     
     var curr = this;
-    var ismenuvisible = false;
     this.connections = {};
     var connectionIndex = 0;
     
@@ -306,9 +305,12 @@ function NodeGraph(){
            "left" : xp, "top" : yp,
            "width" : w, "height" : h,   
            "border" : "1px solid gray",
-           "background-color" : "white"});
+           "background-color" : "white"
+            });
     n.css("z-index", zindex++);
-           
+   
+    
+    
     this.content = n;
     var page_title ="";
     this.width = function(){
@@ -324,10 +326,6 @@ function NodeGraph(){
       return n.position().top;
     }
     
-    this.changeMenuVisible = function(val)
-    {
-        ismenuvisible = val;
-    }
     var nodeWidth = n.width();
     var nodeHeight = n.height();
     page_title = title;
@@ -339,7 +337,7 @@ function NodeGraph(){
              "padding" : "0", "margin": "0","color": "white",
              "font-size" : "10px","text-align" : "center" , "cursor" : "pointer"});
              
-             
+         
     if (!noDelete){
       n.append("<div class='ex'>V<\/div>");
       var ex = $(".node .ex").last();
@@ -349,14 +347,10 @@ function NodeGraph(){
               "font-size" : "9px", "background-color" : "gray", "z-index" : 100}); 
         
       ex.hover(function(){
-          if (ismenuvisible == false)
-          {
-              ismenuvisible = true;
-              submenu.css({"left":mouseX -5, "top":mouseY - 5});  
-              submenu.show();
-          }      
+              submenu.css({"left":n.position().left, "top":n.position().top-5});  
+              submenu.show();    
       }, function(){
-
+          
       }).click(function(){
           submenu.hide();
       });
@@ -395,7 +389,8 @@ function NodeGraph(){
              "resize" : "none", "overflow" : "hidden",
              "font-size" : "12px" , "font-family" : "sans-serif",
              "border" : "none","z-index":4});
-          
+    
+    txt.sbscroller();
     this.txt = txt;
     
     n.append("<div class='resizer' />");
@@ -536,7 +531,7 @@ function NodeGraph(){
     resizer.mousedown(function(e){
       currentNode = curr;
       e.preventDefault();
-      startDrag(resizer, {left : 20, top : 20, right : 500, bottom : 500},
+      startDrag(resizer, false, {left : 20, top : 20, right : 500, bottom : 500},
       function(){
         var loc = resizer.position();
         var x = loc.left;
@@ -559,7 +554,7 @@ function NodeGraph(){
       currentNode = curr;
       n.css("z-index", zindex++);
       e.preventDefault();
-      startDrag(n, {left : 10, top: 40, right : win.width() - n.width() - 10, bottom : win.height() - n.height() - 10},
+      startDrag(n, true, {left : 10, top: 40, right : win.width() - n.width() - 10, bottom : win.height() - n.height() - 10},
       updateConnections);
     });
     

@@ -1,12 +1,11 @@
 var g_cwd_path = "";
 var g_node_graph_obj = null;
-var g_res_list = null;
 var g_res_js_list = null;
 var g_res_png_list = null;
 var g_res_html_list = null;
 var g_res_php_list = null;
 var g_res_css_list = null;
-var projectName = null;
+var projectName = "";
 
 
 $(function(){
@@ -59,7 +58,7 @@ $("#new").click(function(event){
         $('#file_open').hide();
         $("#save_file").hide();
         $('#browse_info').show();
-        addimg();
+       
     }
 });
 
@@ -160,7 +159,7 @@ function save_file(form)
 // 
 // This function takes care of the resource info 
 // 
-function browse_resources(projectName)
+function browse_resources()
 {   
     // first create the resources box
     $("#browse_info").css({"height":"200px"}); 
@@ -182,29 +181,71 @@ function browse_resources(projectName)
         var filelist = '$( <div id="res_list">)';
         $(filelist).insertAfter("#collapse");
         var res_list = $("#res_list");
+        var count = 0;
+        var len = g_cwd_path.length
+        if( g_res_html_list != null) {
+            for (i = 0 ; i < g_res_html_list.length ; i++) {
 
-        for (i = 1 ; i < g_res_list.length -1  ; i++) {
-            var filetag = '<div class =file_ref>' +  g_res_list[i] + '</div>'; 
-            res_list.append(filetag);
-            if (i > 5) {
-                var height = $("#browse_info").height() + 16 ;
-                var height_txt = height + 'px';
-                $("#browse_info").css({"height":height_txt}); 
-            }           
+                var file_name = g_res_html_list[i].filename.substring(len,g_res_html_list[i].filename.length );
+                var filetag = '<div class =file_ref>' +  file_name + '</div>';
+
+                res_list.append(filetag);
+                if (count++ > 5) {
+                    var height = $("#browse_info").height() + 16 ;
+                    var height_txt = height + 'px';
+                    $("#browse_info").css({"height":height_txt}); 
+                }           
+            }
         }
+        if (g_res_js_list != null) {
+            for(i =0; i < g_res_js_list.length ; i++){
+                var file_name = g_res_js_list[i].filename.substring(len,g_res_js_list[i].filename.length);
+
+                var filetag = '<div class =file_ref>' +  file_name + '</div>'; 
+                res_list.append(filetag);
+                if (count++ > 5) {
+                    var height = $("#browse_info").height() + 16 ;
+                    var height_txt = height + 'px';
+                    $("#browse_info").css({"height":height_txt}); 
+                }           
+            }
+        }
+        if(g_res_css_list != null) {
+            for(i =0; i < g_res_css_list.length ; i++){
+                var file_name = g_res_css_list[i].filename.substring(len,g_res_css_list[i].filename.length);
+
+                var filetag = '<div class =file_ref>' +  file_name + '</div>'; 
+                res_list.append(filetag);
+                if (count++ > 5) {
+                    var height = $("#browse_info").height() + 16 ;
+                    var height_txt = height + 'px';
+                    $("#browse_info").css({"height":height_txt}); 
+                }           
+            }
+        }    
         $(".file_ref").live('click',function() {
             var filename = $(this).text();
-                
-            if (filename.indexOf("js") != -1)
-            {
-                filename = g_cwd_path + filename 
-                for (i in g_res_js_list) {
+            filename = g_cwd_path + filename;    
+            for (i in g_res_js_list) {
                     if (g_res_js_list[i].filename == filename)
                         g_res_js_list[i].showNode();
                     else
                        g_res_js_list[i].hideNode();
-                }
+            }          
+            for (i in g_res_html_list) {
+                if(g_res_html_list[i].filename == filename) {
+                        g_res_html_list[i].showNode();
+                }else 
+                    g_res_html_list[i].hideNode();
+                    
             }
+            for (i in g_res_css_list) {
+                if (g_res_css_list[i].filename == filename)
+                    g_res_css_list[i].showNode();
+                else
+                    g_res_css_list[i].hideNode();               
+            }
+                      
         });
         
         $("#collapse").click(function(event){           
@@ -217,50 +258,80 @@ function browse_resources(projectName)
     });
 }
 
-function scan_cwd()
+function scan_cwd(filetype)
 {
     if (g_cwd_path == "") {
         alert("please enter the current working directory")
     } else {
+        if (g_res_html_list != null ) {
+
+            while(g_res_html_list.length > 0) {
+                var html_res = g_res_html_list.pop();
+                html_res.deleteInstance();
+            }
+            delete g_res_html_list;
+        }
+        if (g_res_js_list != null ) {
+            while(g_res_js_list.length >0) {
+               var js_res = g_res_js_list.pop();
+               js_res.deleteInstance();
+            }
+
+            delete g_res_js_list;
+        }
+        
+        if(g_res_css_list != null) {
+            while (g_res_css_list.length > 0 ) {
+               var css_res = g_res_css_list.pop();
+               css_res.deleteInstance();                
+            }
+            delete g_res_css_list;
+        }
         // list all the files in the cwd
         $.post("scandir.php",{"name" : g_cwd_path, "isdir" : false }, function(data){
-            if (g_res_list == null)
-                g_res_list = new Array();
-            g_res_list = data.split("<br>");
+
+            var file_list = new Array();
+            file_list = data.split("<br>");
             $("#file_open").hide();
             $('#browse_info').show();
-            browse_resources();
+            $('#res_list').remove();
+            $("#expand").remove();
+            $("#collapse").remove();
+            //needs to be called later
+            //browse_resources();
             if (g_node_graph_obj == null)
                 g_node_graph_obj = new NodeGraph(); 
                    
             // open the html files and determine the list of js file
-            for (i = 0; i < g_res_list.length; i++) {
-                var file_name = g_res_list[i];
-                if ( file_name.indexOf(".html") != -1) {
-                   //alert (file_name + " is html file")
-                   // open the file and look for all script files
-                } else if (file_name.indexOf(".js") != -1) {
-                   //alert (file_name + " is javascript file")
-                   file_name = g_cwd_path + file_name;
-                   if (g_res_js_list == null) {
-                      g_res_js_list = new Array;
-                   }
-                   g_res_js_list[g_res_js_list.length] = new jsResourceInfo().createInstance(file_name);                      
-                
-                }  else if ( file_name.indexOf(".css") != -1) {
-                        
-                    if (g_res_css_list == null)
-                        g_res_css_list = new Array;
-                    
-                    g_res_css_list[g_res_css_list.length] = file_name;
-                }  else if ( file_name.indexOf(".png") != -1)  {
-                        //alert(file_name + " image file")
-                }  else if (file_name.indexOf(".php") != -1) {
-                       // alert(file_name + " is a php file")
-                }                        
+            for (i = 0; i < file_list.length; i++) {
+                var file_name = file_list[i];
+                // only process
+                if (file_name.indexOf(".html") != -1) {
+                    file_name = g_cwd_path + file_name;
+                    if(g_res_html_list ==  null) {
+                        g_res_html_list = new Array;
+                    }
+                    g_res_html_list[g_res_html_list.length] = new htmlResourceInfo().createInstance(file_name);
+                }             
              }
         });
     }
+}
+
+function create_js_browse_info(filename)
+{
+    filename = g_cwd_path + filename;
+    if (g_res_js_list == null) 
+        g_res_js_list = new Array;
+     g_res_js_list[g_res_js_list.length] = new jsResourceInfo().createInstance(filename);   
+}
+
+function create_css_browse_info(filename)
+{
+    filename = g_cwd_path + filename;
+    if(g_res_css_list == null)
+        g_res_css_list = new Array();
+    g_res_css_list.push(new cssResourseInfo().createInstance(filename));
 }
 
 function save_file(filename,text)

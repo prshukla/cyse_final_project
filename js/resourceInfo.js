@@ -17,6 +17,11 @@ function resourceInfo()
    {
        this.node.hide();
    }
+   
+   this.deleteInstanceResource = function()
+   {
+       this.node.remove();
+   }
    this.createResourceInfo = function(name)
    {
         this.filename  = name;
