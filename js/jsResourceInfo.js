@@ -7,13 +7,14 @@ function jsResourceInfo()
     this.globalVariables = null;
     this.nodeArray = null;
     
-    this.createInstance = function(filename)
+    this.createInstance = function(filename,open)
     {
         this.classInfoarry = new Array();
         this.globalVariables  = new Array();
         this.nodeArray = new Array();
         this.createResourceInfo(filename);
-        this.openFile();
+        if(open)
+            this.openFile();
         return this;
     }
     
@@ -326,9 +327,9 @@ function jsResourceInfo()
     {
         for (i = 0; i < this.classInfoarry.length ; i++ )
         {
-            
-            this.nodeArray[i] = g_node_graph_obj.addNode(class_view_init_x,
-                                class_view_init_y,180,100,false,this.classInfoarry[i].classname);
+
+            //this.nodeArray[i] = g_node_graph_obj.addNode(class_view_init_x,
+            //                    class_view_init_y,180,100,false,this.classInfoarry[i].classname); 
             var str = (this.classInfoarry[i].declarationLine +" " + this.classInfoarry[i].classname  + "\n");
            str +=  this.classInfoarry[i].superclassname +"\n";
            for (j = 0; j < this.classInfoarry[i].methodinfo.length ; j++)
@@ -339,8 +340,9 @@ function jsResourceInfo()
                     this.classInfoarry[i].methodinfo[j].methodname + "\n");
              }
              str += ("End Class "+this.classInfoarry[i].endline +" " + this.classInfoarry[i].classname  + "\n");
-             this.nodeArray[i].addText(str);
-             class_view_init_x = class_view_init_x + 180;
+             //this.nodeArray[i].addText(str);
+             //class_view_init_x = class_view_init_x + 20;
+             
              
         }
     }
@@ -350,7 +352,7 @@ jsResourceInfo.prototype = new resourceInfo;
 
 function classInfo()
 {
-    this.superclassname;
+    this.superclassname = "";
     this.classname;
     this.declarationLine = 0 ;
     this.endline = 0;
@@ -384,6 +386,7 @@ function classInfo()
         this.declarationLine = linenumber;  
         this.methodinfo = new Array();
         this.compositioninfo = new Array();
+        this.superclassname = "";
         return this;
     }
     

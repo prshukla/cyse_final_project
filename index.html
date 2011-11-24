@@ -34,19 +34,12 @@
             <header id="file_open_hdr">
                 <h3> Open an existing project</h3>
             </header>
-            <div>
-                <p class="file_select">
-                    select a project file 
-                </p>
-                <form id="file_open_form" method="get"> 
-                <input class="gray button" type="file" name="filename">
-                <p> <INPUT class="gray button" TYPE="button" NAME="button" Value="open" onClick="open_file(this.form)"></p> 
-                </form>
-                <p class="file_select"> or <input id="file_scan_button" class="gray button" type="button" Name="button" value="scan current working directory" 
+            <div id="files"></div>
+            <div class ="file_select" style="margin-top:20px";>
+                
+            <input id="file_scan_button" class="gray button" type="button" Name="button" value="scan current working directory" 
                               onClick="scan_cwd('html')"></input>
-                </p>
-            </div>
-               
+            </div>               
         </div>
         <!-- This save file information -->
         <div id="save_file">
@@ -54,12 +47,12 @@
                 <h3> Save Project as</h3>
             </header>
             <div>
-                <form id="save_project_file" method="post">
+                <form id="save_project_file" name ="save_project_file" method="post" action="javascript:void(0)">
                 <p class=" save_file_form"> Project file :
-                    <input type="text" id="save_file_txt_box"> 
+                    <input type="text" name ="save_file_txt_box"> 
                 </p>
                 <p> 
-                    <input class="gray button" type="button" value="Save" onClick="save_file(this.form)">
+                    <input class="gray button" type="button" value="Save" style="margin-left:40px; "onClick="save_prj_file()">
                 </p> 
                 </form>
             </div>

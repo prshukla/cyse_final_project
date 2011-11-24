@@ -16,6 +16,10 @@ function NodeGraph(){
   var hitConnect;
   var key = {};
   var SHIFT = 16;
+  var max_x = 0;
+  var max_y = 0;
+  
+  
   // Prashant Change
   // added 20 to compensate for margins
   var topHeight = $("#mainhdr").height() + 20;
@@ -23,10 +27,13 @@ function NodeGraph(){
   // added 20 to compensate for the margins
   var resWidth  = $("#browse_info").width() + 20; 
   
+  var curr_x  = 0;
+  var curr_y = 50;
   var paper = new Raphael("canvas", "100", "100");
   
   function resizePaper(){
-
+    max_x = win.width() - resWidth;
+    max_y =  win.height() - topHeight;
     paper.setSize(win.width() - resWidth, win.height() - topHeight);
   }
   win.resize(resizePaper);
@@ -108,11 +115,28 @@ function NodeGraph(){
     }
     
  
-    node = new Node(x, y, currentNode.width(), currentNode.height());
+    node = new Node(x, y, currentNode.width(), currentNode.height(),"");
     saveConnection(node, dir);
     currentNode = node;
   }
+  this.get_x = function() 
+  {
+      if ( max_x - curr_x  > 300  )
+      {
+          curr_x += 150;
+      }
+      else
+      {
+          curr_x = resWidth + 150;
+          curr_y += 200;
+      }
+      return curr_x;
+  }
   
+  this.get_y = function()
+  {
+      return curr_y;
+  }
   function createConnection(a, conA, b, conB){
       var link = paper.path("M 0 0 L 1 1");
       link.attr({"stroke-width":2});
@@ -312,7 +336,12 @@ function NodeGraph(){
     
     
     this.content = n;
-    var page_title ="";
+    
+    this.page_title = title;
+    
+    this.title = function() {
+        return this.page_title;
+    }
     this.width = function(){
       return n.width();
     }
@@ -328,7 +357,6 @@ function NodeGraph(){
     
     var nodeWidth = n.width();
     var nodeHeight = n.height();
-    page_title = title;
     var bar =  "<div class='bar'>" + title + "</div>"      
     n.append(bar);
     var bar = $(".node .bar").last();
@@ -347,12 +375,13 @@ function NodeGraph(){
               "font-size" : "9px", "background-color" : "gray", "z-index" : 100}); 
         
       ex.hover(function(){
-              submenu.css({"left":n.position().left, "top":n.position().top-5});  
-              submenu.show();    
+                  ex.css("color","black");
       }, function(){
-          
+                  ex.css("color","white");
       }).click(function(){
-          submenu.hide();
+         currentNode =curr; 
+         submenu.css({"left":n.position().left, "top":n.position().top-5});  
+         submenu.show();    
       });
       
       
@@ -379,6 +408,10 @@ function NodeGraph(){
     {
         currentNode = curr;
         this.content.show();
+    }
+    
+    this.nodeConnect  = function(nodepos1, node, pos2){
+        createConnection(this, nodepos1,node, pos2)
     }
     n.append("<textarea class='txt' spellcheck='false' />");
     var txt = $(".node .txt").last();
@@ -645,7 +678,7 @@ function NodeGraph(){
     for (var i in data.nodes){
       var n = data.nodes[i];
       var ex = (i == "0") ? true : false;
-      var temp = new Node(n.x, n.y, n.width, n.height, "", ex, n.id);
+      var temp = new Node(n.x, n.y, n.width, n.height, n.title, false, n.id);
       var addreturns = n.txt.replace(/\\n/g,'\n');
       temp.txt.val(addreturns);
     }
@@ -664,9 +697,10 @@ function NodeGraph(){
       json += '"y" : ' + n.y() + ', ';
       json += '"width" : ' + n.width() + ', ';
       json += '"height" : ' + n.height() + ', ';
+      json += '"title" : "' + n.title() + '", ';
       json += '"txt" : "' + addSlashes(n.txt.val()) + '"},';
     }
-    json = json.substr(0, json.length - 1);
+    json = json.substr(0, json.length - 1); 
     json += '], "connections" : [';
     
     var hasConnections = false;

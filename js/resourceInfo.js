@@ -30,7 +30,15 @@ function resourceInfo()
         this.node.hide();
         return this;
    }
-    
+   
+   this.close_node  = function()
+   {
+       if (this.node != null) {
+           this.node.remove();
+           this.node = null;
+       }
+   }
+   
    this.initContent = function(content)
    {
         this.fileContent = content;

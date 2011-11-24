@@ -1,10 +1,11 @@
 function cssResourseInfo()
 {
     // create an instance
-    this.createInstance = function(filename) 
+    this.createInstance = function(filename,open) 
     {
         this.createResourceInfo(filename);
-        this.openFile();
+        if(open)
+            this.openFile();
         return this;
     }
     

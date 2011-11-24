@@ -3,13 +3,16 @@ function htmlResourceInfo()
     this.jsresourcelist = null;
     this.cssResourcelist= null;
     this.inlinejsResource = null;
+    this.jason;
     
-    this.createInstance = function(filename)
+    this.createInstance = function(filename,open)
     {
         this.jsresourcelist= new Array();
         this.cssResourcelist = new Array();
         this.createResourceInfo(filename);
-        this.openFile();
+        if (open)
+            this.openFile();
+        this.json="";
         return this;
     }
     
@@ -257,29 +260,34 @@ function htmlResourceInfo()
             index = lineindex +2; 
             lineindex = content.indexOf("\r\n",index);
         }
-        this.toJason();
+        this.toJson();
         browse_resources();
+        setTimeout( function(){build_class_hierarcy();},1000);
     }
     
-    this.toJason = function()
+    this.toJson = function()
     {
-        var jason = '{"file" :' +  this.filename + ", ";
-        jason +=  '{"Resource" : [';
+        //this.json = '{"file" : "' +  this.filename + '",';
+        //this.json =  '{"Resource" : [';
         for (i =0; i < this.jsresourcelist.length; i++) {
             create_js_browse_info(this.jsresourcelist[i]);
-            jason += '{ "name" :' + this.jsresourcelist[i] + ", ";
-            jason += '"type" :javascript},';        
+            this.json += '{ "name" : "' + this.jsresourcelist[i] + '", ';
+            this.json += '"type" : "javascript" },';        
         }
         for (i =0; i < this.cssResourcelist.length; i++) {
             create_css_browse_info(this.cssResourcelist[i]);
-            jason += '{ "name" :' + this.cssResourcelist[i] + ", ";
-            jason += '"type" :stylesheet},';   
+            this.json += '{ "name" : "' + this.cssResourcelist[i] + '", ';
+            this.json += '"type" : "stylesheet"},';   
         }
-        jason = jason.substring(0,jason.length - 1)
-        jason += ']}';
-        alert(jason);
+        this.json = this.json.substring(0,this.json.length - 1)
+        //this.json += ']}';
     }
     
+    
+    this.fromJson = function()
+    {
+        
+    }
 }
 
 htmlResourceInfo.prototype = new resourceInfo;

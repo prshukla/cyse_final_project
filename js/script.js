@@ -29,7 +29,6 @@ $('#browse_info').hide();
       
   });
   
-
 //var opentag = $("#open");
 // open the open file dialog box
 $("#open").click(function(event){
@@ -38,12 +37,16 @@ $("#open").click(function(event){
     $("#save_file").hide();
     $("#file_open").show();
     $('#browse_info').hide();
+    var fileList =  $("#files");
+    fileList.html("<div>loading...<\/div>");
+    fileList.load("files.php?");   
     
 });
 // open the save dialog box
 $("#save").click(function(event){
     $('#file_open').hide();
     $("#save_file").show();
+    
 });
 
 $("#new").click(function(event){
@@ -81,7 +84,6 @@ $("#new").click(function(event){
   });
   
 function savecwd(){
-      
     var name = current.val();
     if (name == "" || name == nameMessage){
       alert("Please Name Your current working directory");
@@ -95,9 +97,27 @@ function savecwd(){
     alert ("The current working directory has been set to " + g_cwd_path);
 
 }
+
+
+$(".file").live('click', function() {
+    var name = $(this).text();
+    $.getJSON(name, {n:Math.random()}, function(data){
+        if(g_node_graph_obj == null)
+            g_node_graph_obj = new NodeGraph();
+       g_node_graph_obj.fromJSON(data);
+       build_resource_info(data);
+    });
+    $("#file_open").hide();
+    $('#browse_info').show();
+  }).live('mouseover', function(){
+    $(this).css({"background-color": "#ededed"});
+  }).live("mouseout", function(){
+    $(this).css({"background-color": "white"});
+  });
+
 });
 
-function open_file(form)
+function save_prj_file()
 {
     if (g_cwd_path == "")
     {
@@ -105,39 +125,7 @@ function open_file(form)
     }
     else
     {
-        var filepath = form.filename.value;
-        var idx = filepath.indexOf(".json");
-        if (idx == -1)
-        {
-            alert("incorrect project file");
-        }
-        else
-        {
-            $('#file_open').hide();
-
-            var filepath_arry = new Array();
-            filepath_arry = filepath.split("\\");
-            var  filename = filepath_arry[filepath_arry.length - 1];
-
-            filename = g_cwd_path + filename;
-            $('#browse_info').show();
-            $.getJSON(filename, function(data)
-            {
-                alert(data);
-            });
-        }
-    }
-}
-
-function save_file(form)
-{
-    if (g_cwd_path == "")
-    {
-        alert("please enter the current working directory")
-    }
-    else
-    {
-        var filepath = form.save_file_txt_box.value;
+        var filepath = document.save_project_file.save_file_txt_box.value;
         var idx = filepath.indexOf(".json");
         if (idx == -1)
         {
@@ -147,10 +135,23 @@ function save_file(form)
         {
             $('#save_file').hide();
            
-            var filename = g_cwd_path + filepath;
-            alert(filename);
-            //$('#browse_info').show();
-            $.post("save.php",{"name" : filename}, function(data){
+            var filename = "json/" + filepath;
+            var jsoninfo = "";
+            rem_file_nodes();
+            if(g_node_graph_obj != null)
+                jsoninfo = g_node_graph_obj.toJSON();  
+            if (g_res_html_list != null ) {
+                jsoninfo = jsoninfo.substring(0,jsoninfo.length -1);
+                jsoninfo +=",";
+                jsoninfo +=  '"Resource" : [';
+               for (i in g_res_html_list) {
+                   this.json += '{ "name" : "' + g_res_html_list.filename + '", ';
+                   this.json += '"type" : "html" },';  
+                   jsoninfo +=  g_res_html_list[i].json;
+               }
+               jsoninfo +=  ']}';
+            }
+            $.post("save.php",{"name" : filename, "data" : jsoninfo}, function(data){
                 alert(data);
             });
         }
@@ -288,7 +289,7 @@ function scan_cwd(filetype)
             delete g_res_css_list;
         }
         // list all the files in the cwd
-        $.post("scandir.php",{"name" : g_cwd_path, "isdir" : false }, function(data){
+        $.post("scandir.php",{"name" : g_cwd_path, "isdir" : false}, function(data){
 
             var file_list = new Array();
             file_list = data.split("<br>");
@@ -297,8 +298,7 @@ function scan_cwd(filetype)
             $('#res_list').remove();
             $("#expand").remove();
             $("#collapse").remove();
-            //needs to be called later
-            //browse_resources();
+
             if (g_node_graph_obj == null)
                 g_node_graph_obj = new NodeGraph(); 
                    
@@ -311,7 +311,7 @@ function scan_cwd(filetype)
                     if(g_res_html_list ==  null) {
                         g_res_html_list = new Array;
                     }
-                    g_res_html_list[g_res_html_list.length] = new htmlResourceInfo().createInstance(file_name);
+                    g_res_html_list[g_res_html_list.length] = new htmlResourceInfo().createInstance(file_name,true);
                 }             
              }
         });
@@ -323,7 +323,7 @@ function create_js_browse_info(filename)
     filename = g_cwd_path + filename;
     if (g_res_js_list == null) 
         g_res_js_list = new Array;
-     g_res_js_list[g_res_js_list.length] = new jsResourceInfo().createInstance(filename);   
+     g_res_js_list[g_res_js_list.length] = new jsResourceInfo().createInstance(filename,true);   
 }
 
 function create_css_browse_info(filename)
@@ -331,7 +331,99 @@ function create_css_browse_info(filename)
     filename = g_cwd_path + filename;
     if(g_res_css_list == null)
         g_res_css_list = new Array();
-    g_res_css_list.push(new cssResourseInfo().createInstance(filename));
+    g_res_css_list.push(new cssResourseInfo().createInstance(filename,true));
+}
+
+var g_class_hierarcy_arry = new Array();
+
+function build_class_hierarcy()
+{
+   for (i = 0; i < g_res_js_list.length ; i++)
+   {
+       var js_res = g_res_js_list[i];
+       if (js_res.classInfoarry != null)
+           for (j in js_res.classInfoarry) {
+               var classinfo = new class_hierarcy().createInstance(js_res.classInfoarry[j].classname, js_res.classInfoarry[j].superclassname);
+               classinfo.createNode();
+               g_class_hierarcy_arry.push(classinfo);
+           }
+   }
+
+   for (i in g_class_hierarcy_arry) {
+       if (g_class_hierarcy_arry[i].superclass != null && g_class_hierarcy_arry[i].superclass.length != 0) {
+           for (j in g_class_hierarcy_arry)
+               if (g_class_hierarcy_arry[i].superclass == g_class_hierarcy_arry[j].name) {
+                   g_class_hierarcy_arry[i].superclassnode = g_class_hierarcy_arry[j].node;
+                   g_class_hierarcy_arry[j].node.nodeConnect("bottom",g_class_hierarcy_arry[i].node, "top");
+               }               
+       }
+       
+   }
+}
+
+function build_resource_info (data)
+{
+    for (var i in data.Resource) {
+        var fileinfo = data.Resource[i]
+        if (fileinfo.type = "javascript") {
+            if (g_res_js_list == null) 
+                g_res_js_list = new Array;
+             g_res_js_list.push(new jsResourceInfo().createInstance(fileinfo.name,false)); 
+        }else if (fileinfo.type = "html") {
+                if(g_res_html_list ==  null) 
+                    g_res_html_list = new Array;
+             g_res_html_list.push(new jsResourceInfo().createInstance(fileinfo.name,false)); 
+        }else if (fileinfo.type = "stylesheet") {
+            if (g_res_css_list = null)
+                g_res_css_list = new Array();
+            g_res_css_list.push(new cssResourseInfo().createInstance(fileinfo.name,false));
+        }
+            
+    }
+    browse_resources();
+}
+
+function class_hierarcy()
+{
+   this.name = "";
+   this.superclass = "";
+   this.node = null;
+   this.superclassnode = null;
+   this.createInstance = function(classname , superclass)
+   {
+       this.name = classname;
+       this.superclass = superclass;
+       return this;
+   }
+   
+   this.createNode = function() {
+             var x = g_node_graph_obj.get_x();
+             var y = g_node_graph_obj.get_y();
+            this.node = g_node_graph_obj.addNode(x,y,135,100,false,this.name);  
+   }
+   
+}
+
+function rem_file_nodes()
+{
+    if (g_res_html_list != null ) {
+       for (i in g_res_html_list) {
+           var html_res = g_res_html_list[i];
+           html_res.close_node();
+       }
+   }
+   if (g_res_js_list != null ) {
+       for (i in g_res_js_list) {
+           var js_res = g_res_js_list[i];
+           js_res.close_node();
+       }
+   }
+   if(g_res_css_list != null) {
+        for (i in g_res_css_list) {
+         var css_res = g_res_css_list[i];
+         css_res.close_node();                
+      }
+   }   
 }
 
 function save_file(filename,text)
