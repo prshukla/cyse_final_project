@@ -1,6 +1,3 @@
-var class_view_init_x = 100;
-var class_view_init_y = 100;
-
 function jsResourceInfo()
 {
     this.classInfoarry = null;
@@ -271,11 +268,14 @@ function jsResourceInfo()
                                          if (this.classInfoarry.length != 0) 
                                          {
                                             this.classInfoarry[this.classInfoarry.length -1].addComposition(variablename,linenumber, classname); 
+                                            //alert( "variable name = " + variablename + " linenumber " + linenumber + "class name " + classname);
                                          }
                                          else
                                          {
                                               this.globalVariables.push(new variableInfo().createInstance(variablename, linenumber));
                                               this.globalVariables[this.globalVariables.length -1].addComposition(variablename,linenumber, classname); 
+                                               //alert( "variable name = " + variablename + " linenumber " + linenumber + "class name " + classname);
+                                       
                                          }
                                          substringindex = linestring.length;
                                      }
@@ -291,12 +291,22 @@ function jsResourceInfo()
                                          substringindex = endidx + 1;
                                          var classname = linestring.substring(idxvar,endidx);
                                          this.classInfoarry[this.classInfoarry.length -1].addComposition(variablename,linenumber, classname); 
+                                         //alert( "variable name = " + variablename + " linenumber " + linenumber + "class name " + classname);
+                                       
                                          substringindex = linestring.length;   
-                                     }   
+                                     } else {
+                                             var statidx = linestring.indexOf("new") + "new".length;
+                                             var endidx = linestring.indexOf("(");
+                                             var classname = linestring. substring(statidx,endidx);
+                                             this.classInfoarry[this.classInfoarry.length -1].addComposition("",linenumber, classname);
+                                             substringindex = linestring.length;                    
+                                     } 
+                                     
                                  } else {
-                                     // need to implement this
-                                     // no var no this
-                                     // variable name is index 0 and new 
+                                     var statidx = linestring.indexOf("new") + "new".length;
+                                     var endidx = linestring.indexOf("(");
+                                     var classname = linestring. substring(statidx,endidx);
+                                     this.classInfoarry[this.classInfoarry.length -1].addComposition("",linenumber, classname);
                                      substringindex = linestring.length;
                                  }
                                  
@@ -327,23 +337,17 @@ function jsResourceInfo()
     {
         for (i = 0; i < this.classInfoarry.length ; i++ )
         {
-
-            //this.nodeArray[i] = g_node_graph_obj.addNode(class_view_init_x,
-            //                    class_view_init_y,180,100,false,this.classInfoarry[i].classname); 
             var str = (this.classInfoarry[i].declarationLine +" " + this.classInfoarry[i].classname  + "\n");
-           str +=  this.classInfoarry[i].superclassname +"\n";
-           for (j = 0; j < this.classInfoarry[i].methodinfo.length ; j++)
+            //str +=  this.classInfoarry[i].superclassname +"\n";
+            for (j = 0; j < this.classInfoarry[i].compositioninfo.length ; j++)
             {
-                str += (this.classInfoarry[i].methodinfo[j].methoddeclaration + " " + 
-                    this.classInfoarry[i].methodinfo[j].methodname + "\n");
-                str += (" end " + this.classInfoarry[i].methodinfo[j].methodendline + " " + 
-                    this.classInfoarry[i].methodinfo[j].methodname + "\n");
+                //str += (this.classInfoarry[i].methodinfo[j].methoddeclaration + " " + 
+                 str += this.classInfoarry[i].compositioninfo[j].classname + "\n";
+                //str += (" end " + this.classInfoarry[i].methodinfo[j].methodendline + " " + 
+                //    this.classInfoarry[i].methodinfo[j].methodname + "\n");
              }
-             str += ("End Class "+this.classInfoarry[i].endline +" " + this.classInfoarry[i].classname  + "\n");
-             //this.nodeArray[i].addText(str);
-             //class_view_init_x = class_view_init_x + 20;
-             
-             
+             //alert (str)
+             //str += ("End Class "+this.classInfoarry[i].endline +" " + this.classInfoarry[i].classname  + "\n");            
         }
     }
 }
@@ -410,6 +414,17 @@ function classInfo()
     {
         this.compositioninfo[this.compositioninfo.length] = new compositionInfo().createinstance(varname, linenumber, classname);
     }
+
+    this.get_class_details = function() {
+        var str = "Method\n";
+        str += "---------------\n";
+        for ( k in  this.methodinfo) {
+            str += this.methodinfo[k].methoddeclaration + " - " + this.methodinfo[k].methodendline + " "
+                        + this.methodinfo[k].methodname + "\n";
+        }
+        str += "---------------\n";
+        return str;
+    }
 }
 
 function methodInfo()
@@ -465,7 +480,7 @@ function compositionInfo ()
    this.linedecleration;
    this.variablemodified;
    
-   this.createinstance =function(variablename, classname, linenumber)
+   this.createinstance =function(variablename,  linenumber, classname)
    {
        this.classname = classname;
        this.linedecleration = linenumber;

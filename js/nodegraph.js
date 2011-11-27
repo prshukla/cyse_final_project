@@ -16,10 +16,10 @@ function NodeGraph(){
   var hitConnect;
   var key = {};
   var SHIFT = 16;
-  var max_x = 0;
-  var max_y = 0;
-  
-  
+  var max_x = 1000;
+  var max_y = 1600;
+  var max_file_x = 2400;
+  var max_file_y = 1600;
   // Prashant Change
   // added 20 to compensate for margins
   var topHeight = $("#mainhdr").height() + 20;
@@ -29,35 +29,52 @@ function NodeGraph(){
   
   var curr_x  = 0;
   var curr_y = 50;
-  var paper = new Raphael("canvas", "100", "100");
   
+  var curr_file_x = 1200 ;
+  var curr_file_y  = 50;
+  var paper = new Raphael("canvas", "100", "100");
+  // Prashant Comment
+  /*
   function resizePaper(){
     max_x = win.width() - resWidth;
     max_y =  win.height() - topHeight;
-    paper.setSize(win.width() - resWidth, win.height() - topHeight);
+    max_file_x = win.width() + 1000 - resWidth;
+    max_file_y = win.height() - topHeight;
+    paper.setSize(win.width() + 1000 - resWidth, win.height() - topHeight);
+  }
+  */
+  var canvas_width = win.width()  - resWidth;
+  var canvas_height = win.height() - topHeight;
+  canvas.css({"width":canvas_width, "height" : canvas_height, "border" :"1px solid #cccccc" });
+  function resizePaper(){
+       paper.setSize(2400,1600);
+        canvas.jScrollPane({showArrows: true, hijackInternalLinks: true});
   }
   win.resize(resizePaper);
   resizePaper();
   
+  canvas.jScrollPane({showArrows: true, hijackInternalLinks: true});
+  
   canvas.append("<ul id='menu1'><li>Left<\/li><li>Right<\/li><li>Top<\/li><li>Bottom<\/li><\/ul>");
   var menu = $("#menu1");
-  
+
   menu.css({"position" : "absolute", "left" : 100, "top" : 0, "z-index" : 5000, "border" : "1px solid gray", "padding" : 0});
 
    $("#menu1 li").css({"list-style" : "none", "font-size": "10px" ,  "margin": 0 , "cursor": "pointer", "background-color": "white",
         "font-family" : "Helvetica","border-bottom" : "1px solid #cccccc", "padding" : "5px 10px 5px 10px"});
   menu.hide();
- canvas. append ("<ul id='submenu'><li>Save<\/li><li>Save As<\/li><li>cancel<\/li><li>exit<\/li>" );
+ /* 
+ canvas. append ("<ul id='submenu'><li>Save<\/li><li>hide<\/li><li>exit<\/li>" );
  var submenu = $("#submenu");
  submenu.css({"position" : "absolute", "left" : 100, "top" : 0, "z-index" : 5000, "border" : "1px solid gray", "padding" : 0});
-  
+
   var li = $("#submenu li")
   li.css({"list-style" : "none", "font-size": "10px" ,  "margin": 0 , "cursor": "pointer", "background-color": "white",
         "font-family" : "Helvetica","border-bottom" : "1px solid #cccccc", "padding" : "5px 10px 5px 10px"
   })
  
-  submenu.hide();
-  
+  submenu.hide(); 
+   */ 
   canvas.append("<div id='hit' />");
   hitConnect = $("#hit");
   hitConnect.css({"position" : "absolute", "left" : 350, "top" : 0, "z-index" : 4000, "border" : "none", 
@@ -74,7 +91,7 @@ function NodeGraph(){
     connectNode(dir);
   });
   
-  $("#submenu li").hover(function(){
+ /* $("#submenu li").hover(function(){
     $(this).css("background-color", "#cccccc");
   }, 
   function () {
@@ -84,6 +101,7 @@ function NodeGraph(){
      var cmd = $(this).text();
      currentNode.executecmd(cmd);
   });
+  */
   
   function connectNode(dir){
     var node, x, y;
@@ -108,9 +126,11 @@ function NodeGraph(){
       //y = pathEnd.y + topHeight + 5 ;
       y = pathEnd.y + 5;
     }else if (dir == "bottom"){
+      var temp = currentNode.width()
       x = pathEnd.x - currentNode.width() / 2 ;
      // prashant change
-     y = pathEnd.y  - currentNode.height() + 7  ;
+     temp = currentNode.height()
+     y = pathEnd.y  - currentNode.height() ;
      // y = pathEnd.y + topHeight - 5 - currentNode.height();
     }
     
@@ -121,14 +141,17 @@ function NodeGraph(){
   }
   this.get_x = function() 
   {
-      if ( max_x - curr_x  > 300  )
+      if ( max_x - curr_x  > 280  )
       {
-          curr_x += 150;
+          if (curr_x == 0 )
+                curr_x += 20;
+          else  
+            curr_x += 250;
       }
       else
       {
-          curr_x = resWidth + 150;
-          curr_y += 200;
+          curr_x =  20;
+          curr_y += 240;
       }
       return curr_x;
   }
@@ -136,6 +159,23 @@ function NodeGraph(){
   this.get_y = function()
   {
       return curr_y;
+  }
+  
+  
+  this.get_file_x = function()
+  {
+      if ( max_file_x - curr_file_x >  500  )
+        curr_file_x += 100;
+     else{
+        curr_file_x = win.width();
+        curr_file_y = curr_file_y + 80;
+     } 
+     return curr_file_x;
+  }
+  
+  this.get_file_y = function()
+  {
+      return curr_file_y;
   }
   function createConnection(a, conA, b, conB){
       var link = paper.path("M 0 0 L 1 1");
@@ -323,7 +363,10 @@ function NodeGraph(){
       return c;
     }
     
-    canvas.append("<div class='node'/>");
+    var temp = $(".jspPane").last();
+    temp.append("<div class='node'/>");
+    //canvas.append("<div class='node'/>");
+    
     var n = $(".node").last();
     n.css({"position" : "absolute",      
            "left" : xp, "top" : yp,
@@ -333,7 +376,7 @@ function NodeGraph(){
             });
     n.css("z-index", zindex++);
    
-    
+    canvas.jScrollPane({showArrows: true, hijackInternalLinks: true});
     
     this.content = n;
     
@@ -373,14 +416,49 @@ function NodeGraph(){
               "color" : "white", "font-family" : "sans-serif",
               "top" : 0, "left": 0, "cursor": "pointer",
               "font-size" : "9px", "background-color" : "gray", "z-index" : 100}); 
-        
-      ex.hover(function(){
+        n. append ("<ul class='submenu'><li>Save<\/li><li>hide<\/li><li>exit<\/li>" );
+        var submenu = $(".node .submenu").last();
+        submenu.css({"position" : "absolute", "left" : 0, "top" : -3, "z-index" : 5000, "border" : "1px solid gray", "padding" : 0, 
+            "display": "none"});     
+    
+        var li = $(".node .submenu li");
+        li.css({"list-style" : "none", "font-size": "10px" ,  "margin": 0 , "cursor": "pointer", "background-color": "white",
+            "font-family" : "Helvetica","border-bottom" : "1px solid #cccccc", "padding" : "5px 10px 5px 10px"
+        })
+        submenu.hide();
+    
+ li.hover(function(){
+    $(this).css("background-color", "#cccccc");
+    return false;
+  }, 
+  function () {
+      $(this).css("background-color","white");
+      return false;
+  }).click(function(){
+     submenu.hide();
+     var cmd = $(this).text();
+     //currentNode =curr; 
+       if (cmd == "exit") {
+         if (confirm("Are you sure you want to close this node?")){
+            currentNode.remove();
+         }
+       } else if (cmd == "Save") {
+           if(confirm("Are you sure you want to save this file")){
+               if (page_title != null && page_title.length > 0)
+               save_file(page_title, this.txt.val());
+           }
+       } else if (cmd == "hide") {
+           currentNode.hide();
+       }
+       return false;
+  });   
+
+   ex.hover(function(){
                   ex.css("color","black");
       }, function(){
                   ex.css("color","white");
       }).click(function(){
-         currentNode =curr; 
-         submenu.css({"left":n.position().left, "top":n.position().top-5});  
+         currentNode  = curr;
          submenu.show();    
       });
       
@@ -390,42 +468,45 @@ function NodeGraph(){
     {
        if (cmd == "exit") {
          if (confirm("Are you sure you want to close this node?")){
-            curr.remove();
+            currentNode.remove();
          }
        } else if (cmd == "Save") {
            if(confirm("Are you sure you want to save this file")){
                if (page_title != null && page_title.length > 0)
                save_file(page_title, this.txt.val());
            }
+       } else if (cmd == "hide") {
+           currentNode.hide();
        }
     }
     this.hide= function()
     {
-        this.content.hide();
+        n.hide();
     }
    
     this.show = function()
     {
-        currentNode = curr;
-        this.content.show();
+        curr.content.show();
     }
     
     this.nodeConnect  = function(nodepos1, node, pos2){
         createConnection(this, nodepos1,node, pos2)
     }
-    n.append("<textarea class='txt' spellcheck='false' />");
+    n.append("<textarea class='txt' spellcheck='false' class='scroll-pane'/>");
     var txt = $(".node .txt").last();
     txt.css("position","absolute");
    
     txt.css({"width" : nodeWidth - 5,
              "height" : nodeHeight - bar.height() - 5,
-             "resize" : "none", "overflow" : "hidden",
+             "resize" : "none", "overflow" : "auto",
              "font-size" : "12px" , "font-family" : "sans-serif",
              "border" : "none","z-index":4});
     
-    txt.sbscroller();
     this.txt = txt;
     
+    //var scrollnode = $(".node .scroll-pane").last();
+    
+    //scrollnode.jScrollPane();
     n.append("<div class='resizer' />");
     var resizer = $(".node .resizer").last();
     
@@ -587,7 +668,9 @@ function NodeGraph(){
       currentNode = curr;
       n.css("z-index", zindex++);
       e.preventDefault();
-      startDrag(n, true, {left : 10, top: 40, right : win.width() - n.width() - 10, bottom : win.height() - n.height() - 10},
+      // prashant change 
+      startDrag(n, true, {left : 10, top: 40, right :2400 , bottom : 1600},
+      //startDrag(n, true, {left : 10, top: 40, right : win.width() - n.width() - 10, bottom : win.height() - n.height() - 10},
       updateConnections);
     });
     
@@ -658,6 +741,7 @@ function NodeGraph(){
          h = currentNode.height () || defaultHeight;
     }
     // Prashant made a change 
+    //var temp = new Node(mouseX - resWidth/2 + 40, mouseY , w, h, "");
     var temp = new Node(mouseX - resWidth/2 + 40, mouseY , w, h, "");
     currentNode = temp;
     currentConnection = null;

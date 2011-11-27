@@ -9,6 +9,7 @@ var projectName = "";
 
 
 $(function(){
+g_node_graph_obj = new NodeGraph();
 
 $("#file_open").hide();
 $("#save_file").hide();
@@ -230,21 +231,16 @@ function browse_resources()
             for (i in g_res_js_list) {
                     if (g_res_js_list[i].filename == filename)
                         g_res_js_list[i].showNode();
-                    else
-                       g_res_js_list[i].hideNode();
             }          
             for (i in g_res_html_list) {
                 if(g_res_html_list[i].filename == filename) {
                         g_res_html_list[i].showNode();
-                }else 
-                    g_res_html_list[i].hideNode();
+                }
                     
             }
             for (i in g_res_css_list) {
                 if (g_res_css_list[i].filename == filename)
-                    g_res_css_list[i].showNode();
-                else
-                    g_res_css_list[i].hideNode();               
+                    g_res_css_list[i].showNode();           
             }
                       
         });
@@ -345,20 +341,48 @@ function build_class_hierarcy()
            for (j in js_res.classInfoarry) {
                var classinfo = new class_hierarcy().createInstance(js_res.classInfoarry[j].classname, js_res.classInfoarry[j].superclassname);
                classinfo.createNode();
+               
+                for (k in js_res.classInfoarry[j].compositioninfo) {
+                    classinfo.composition.push(js_res.classInfoarry[j].compositioninfo[k].classname);
+                }
                g_class_hierarcy_arry.push(classinfo);
+               
+               var str =  js_res.classInfoarry[j].get_class_details();
+               
+               classinfo.node.addText(str);
            }
+       
    }
-
+    
    for (i in g_class_hierarcy_arry) {
        if (g_class_hierarcy_arry[i].superclass != null && g_class_hierarcy_arry[i].superclass.length != 0) {
            for (j in g_class_hierarcy_arry)
                if (g_class_hierarcy_arry[i].superclass == g_class_hierarcy_arry[j].name) {
                    g_class_hierarcy_arry[i].superclassnode = g_class_hierarcy_arry[j].node;
                    g_class_hierarcy_arry[j].node.nodeConnect("bottom",g_class_hierarcy_arry[i].node, "top");
+                   break;
                }               
+       } 
+       for ( k in g_class_hierarcy_arry[i].composition) {
+           if (g_class_hierarcy_arry[i].composition != null && g_class_hierarcy_arry[i].composition.length != 0) {
+               var matchfound = false;
+               for (l in g_class_hierarcy_arry) {
+                   if (g_class_hierarcy_arry[i].composition[k] == g_class_hierarcy_arry[l].name) {
+                       matchfound = true;
+                       g_class_hierarcy_arry[i].node.nodeConnect("right", g_class_hierarcy_arry[l].node ,"left");
+                       break;
+                   }
+               }
+           }    
        }
-       
    }
+   
+   
+   
+   //for (i in g_class_hierarcy_arry) {
+       
+   //}
+   
 }
 
 function build_resource_info (data)
@@ -389,6 +413,7 @@ function class_hierarcy()
    this.superclass = "";
    this.node = null;
    this.superclassnode = null;
+   this.composition = new Array();
    this.createInstance = function(classname , superclass)
    {
        this.name = classname;
@@ -396,10 +421,11 @@ function class_hierarcy()
        return this;
    }
    
+  
    this.createNode = function() {
              var x = g_node_graph_obj.get_x();
              var y = g_node_graph_obj.get_y();
-            this.node = g_node_graph_obj.addNode(x,y,135,100,false,this.name);  
+            this.node = g_node_graph_obj.addNode(x,y,200,100,false,this.name);  
    }
    
 }

@@ -3,10 +3,11 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <link rel="stylesheet" href="css/stylesheet.css"/>
+        <link type="text/css" href="css/jquery.jscrollpane.css" rel="stylesheet" media="all" /> 
         <script type="text/javascript" src="js/jquery-1.6.4.min.js"></script>
         <script type="text/javascript" src="js/jquery.color.js"></script>
-        <script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
-        <script type="text/javascript" src="js/jquery.sbscoller.js"></script>
+        <script type="text/javascript" src="js/jquery.jscrollpane.js"></script>
+        <script type="text/javascript" src="js/jquery.mousewheel.js"></script>
         <script type="text/javascript" src="js/raphael.js"></script>
         <script type="text/javascript" src="js/nodegraph.js"></script>        
         <script type="text/javascript" src="js/script.js"></script>
@@ -35,24 +36,24 @@
                 <h3> Open an existing project</h3>
             </header>
             <div id="files"></div>
-            <div class ="file_select" style="margin-top:20px";>
+            <div class ="file_select" style="margin-top:20px;">
                 
-            <input id="file_scan_button" class="gray button" type="button" Name="button" value="scan current working directory" 
-                              onClick="scan_cwd('html')"></input>
+            <input id="file_scan_button" class="gray button" style="margin-left: 30px;" type="button" Name="button" value="Scan" 
+                              onClick="scan_cwd('html')"/>
             </div>               
         </div>
         <!-- This save file information -->
         <div id="save_file">
-                <header id="file_open_hdr">
+            <header id="file_open_hdr">
                 <h3> Save Project as</h3>
             </header>
             <div>
                 <form id="save_project_file" name ="save_project_file" method="post" action="javascript:void(0)">
                 <p class=" save_file_form"> Project file :
-                    <input type="text" name ="save_file_txt_box"> 
+                    <input type="text" name ="save_file_txt_box"/> 
                 </p>
                 <p> 
-                    <input class="gray button" type="button" value="Save" style="margin-left:40px; "onClick="save_prj_file()">
+                    <input class="gray button" type="button" value="Save" style="margin-left:40px;" onClick="save_prj_file()">
                 </p> 
                 </form>
             </div>
@@ -63,8 +64,6 @@
                 <h3 id="res">Project  Resources</h3>
             </header>
         </div>
-        <div id="canvas"> </div>
-        </p>
-
+        <div id="canvas" class="scroll-pane"></div>
     </body>
 </html>

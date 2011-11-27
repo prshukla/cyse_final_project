@@ -1,7 +1,6 @@
 // This is the number keeps the number of nodes
 var g_resource_array = new Array();
-var init_x_axis = 300;
-var init_y_axis = 100;
+
 function resourceInfo()
 {
    this.filename = null;
@@ -25,7 +24,9 @@ function resourceInfo()
    this.createResourceInfo = function(name)
    {
         this.filename  = name;
-        this.node = g_node_graph_obj.addNode(init_x_axis,init_y_axis,600,800,false,name);
+        var x = g_node_graph_obj.get_file_x();
+        var y = g_node_graph_obj.get_file_y(); 
+        this.node = g_node_graph_obj.addNode(x,y,500,700,false,name);
         g_resource_array [g_resource_array.length] = this.node
         this.node.hide();
         return this;
