@@ -16,10 +16,8 @@ function NodeGraph(){
   var hitConnect;
   var key = {};
   var SHIFT = 16;
-  var max_x = 1000;
-  var max_y = 1600;
-  var max_file_x = 2400;
-  var max_file_y = 1600;
+ 
+ 
   // Prashant Change
   // added 20 to compensate for margins
   var topHeight = $("#mainhdr").height() + 20;
@@ -27,11 +25,6 @@ function NodeGraph(){
   // added 20 to compensate for the margins
   var resWidth  = $("#browse_info").width() + 20; 
   
-  var curr_x  = 0;
-  var curr_y = 50;
-  
-  var curr_file_x = 1200 ;
-  var curr_file_y  = 50;
   var paper = new Raphael("canvas", "100", "100");
   // Prashant Comment
   /*
@@ -47,13 +40,14 @@ function NodeGraph(){
   var canvas_height = win.height() - topHeight;
   canvas.css({"width":canvas_width, "height" : canvas_height, "border" :"1px solid #cccccc" });
   function resizePaper(){
-       paper.setSize(2400,1600);
-        canvas.jScrollPane({showArrows: true, hijackInternalLinks: true});
+       paper.setSize(10000,8000);
+       //canvas.jScrollPane({showArrows: true, hijackInternalLinks: true});
   }
   win.resize(resizePaper);
   resizePaper();
   
   canvas.jScrollPane({showArrows: true, hijackInternalLinks: true});
+  var api = canvas.data('jsp');
   
   canvas.append("<ul id='menu1'><li>Left<\/li><li>Right<\/li><li>Top<\/li><li>Bottom<\/li><\/ul>");
   var menu = $("#menu1");
@@ -139,44 +133,81 @@ function NodeGraph(){
     saveConnection(node, dir);
     currentNode = node;
   }
-  this.get_x = function() 
-  {
-      if ( max_x - curr_x  > 280  )
-      {
-          if (curr_x == 0 )
-                curr_x += 20;
-          else  
-            curr_x += 250;
-      }
-      else
-      {
-          curr_x =  20;
-          curr_y += 240;
-      }
-      return curr_x;
-  }
+
   
-  this.get_y = function()
+  this.scrollToLocX =function(x) 
   {
-      return curr_y;
+      
+      api.scrollToX(x);
   }
+   
+ this.scrollToLocY =function(y)
+ {
+     api.scrollToY(y);
+ }
   
+  var max_file_x = 10000;
+  var max_file_y = 6000;
+  var curr_file_x = 6000;
+  var curr_file_y = 50; 
+  var min_file_x = 6000;
+  var min_file_y = 50;
+  
+
+  var min_class_x = 1000;
+  var min_class_y = 50;
+ 
   
   this.get_file_x = function()
   {
-      if ( max_file_x - curr_file_x >  500  )
-        curr_file_x += 100;
-     else{
-        curr_file_x = win.width();
-        curr_file_y = curr_file_y + 80;
-     } 
+     if (max_file_x - curr_file_x  > 100)
+        curr_file_x += 600;
+     else {
+         curr_file_x = min_file_x;
+         curr_file_y += 900;
+     }
      return curr_file_x;
+     
   }
   
   this.get_file_y = function()
   {
       return curr_file_y;
   }
+  
+   var max_comp_x = 1000;
+   var max_comp_y = 4000;
+   var curr_comp_x = 0;
+   var curr_comp_y = 0;
+   var min_comp_x = 0;
+   var min_comp_y = 50;
+   
+   this.get_comp_x = function()
+   {
+       return curr_comp_x;
+   }
+
+   this.get_comp_y = function() 
+   {
+       return curr_comp_y;
+   }
+   
+   var max_var_x = 4000;
+   var max_var_y = 4000;
+   var curr_var_x = 0; 
+   var curr_var_y  = 0;
+   var min_var_x = 3000;
+   var min_var_y = 50;
+   
+   this.get_var_x = function()
+   {
+       return curr_var_x;
+   }
+   
+   this.get_var_y = function()
+   {
+       return curr_var_y; 
+   }
   function createConnection(a, conA, b, conB){
       var link = paper.path("M 0 0 L 1 1");
       link.attr({"stroke-width":2});
@@ -236,8 +267,10 @@ function NodeGraph(){
   $(document).mousemove(function(e){
     // Prashant Change
     //mouseX = e.pageX ;
-    mouseX = e.pageX - resWidth;
-    mouseY = e.pageY - topHeight;
+    var x_sc = api.getPaneWidth();
+    var y_sc = api.getPaneHeight();
+    mouseX = e.pageX + x_sc - resWidth;
+    mouseY = e.pageY + y_sc - topHeight;
   }).mouseup(function(e){
     overlay.hide();
     var creatingNewNode = newNode;
@@ -324,7 +357,8 @@ function NodeGraph(){
   
   function startDrag(element, updateloc, bounds, dragCallback){
     showOverlay();
-    var startX = mouseX - element.position().left;
+
+    var startX = mouseX  - element.position().left;
     var startY = mouseY - element.position().top;
     if (!dragCallback) dragCallback = function(){};
       var id = setInterval(function(){
@@ -344,7 +378,7 @@ function NodeGraph(){
   }
   
   
-  function Node(xp, yp, w, h, title, noDelete, forceId){
+  function Node(xp, yp, w, h, title, noDelete,  displayLineNum, forceId){
     
 
     if (forceId){
@@ -382,6 +416,7 @@ function NodeGraph(){
     
     this.page_title = title;
     
+    var displaylineNum = displayLineNum;
     this.title = function() {
         return this.page_title;
     }
@@ -439,9 +474,7 @@ function NodeGraph(){
      var cmd = $(this).text();
      //currentNode =curr; 
        if (cmd == "exit") {
-         if (confirm("Are you sure you want to close this node?")){
             currentNode.remove();
-         }
        } else if (cmd == "Save") {
            if(confirm("Are you sure you want to save this file")){
                if (page_title != null && page_title.length > 0)
@@ -467,9 +500,7 @@ function NodeGraph(){
     this.executecmd = function(cmd)
     {
        if (cmd == "exit") {
-         if (confirm("Are you sure you want to close this node?")){
             currentNode.remove();
-         }
        } else if (cmd == "Save") {
            if(confirm("Are you sure you want to save this file")){
                if (page_title != null && page_title.length > 0)
@@ -492,20 +523,55 @@ function NodeGraph(){
     this.nodeConnect  = function(nodepos1, node, pos2){
         createConnection(this, nodepos1,node, pos2)
     }
-    n.append("<textarea class='txt' spellcheck='false' class='scroll-pane'/>");
+    var textwidth = nodeWidth -5;
+    var textleftLoc = 0;
+    var linenum = null;
+    if (displayLineNum == true)
+    {
+        n.append ("<div class='linenum'/>");
+        linenum = $(".node .linenum").last();
+        linenum.css ("position","absolute");
+        linenum.css({"width" : 15,
+                 "height" : nodeHeight - bar.height() - 5,
+                 "resize" : "none", "overflow" : "hidden",
+                 "font-size" : "12px" , "font-family" : "sans-serif",
+                 "border-right" : "1px solid #cccccc","z-index":4});
+         textwidth =   nodeWidth - 22;
+         textleftLoc = 17;
+         var string = '';
+         for(var no=1;no<200;no++){
+            if(string.length>0)string = string + '<br>';
+          string = string + no;
+          linenum.innerHTML =string;
+      }    
+    }
+    this.linenum = linenum;
+
+    n.append("<textarea class='txt' spellcheck='false' />");
     var txt = $(".node .txt").last();
     txt.css("position","absolute");
    
-    txt.css({"width" : nodeWidth - 5,
+    txt.css({"width" : textwidth,
              "height" : nodeHeight - bar.height() - 5,
+             "left" : textleftLoc,
              "resize" : "none", "overflow" : "auto",
              "font-size" : "12px" , "font-family" : "sans-serif",
              "border" : "none","z-index":4});
     
     this.txt = txt;
     
-    //var scrollnode = $(".node .scroll-pane").last();
+    if ( this.linenum != null) {
+      txt.onkeydown = function() { positionLineObj(this.linenum,txt); };
+      txt.onmousedown = function() { positionLineObj(this.linenum,txt); };
+      txt.onscroll = function() { positionLineObj(this.linenum,txt); };
+      txt.onblur = function() { positionLineObj(this.linenum,txt); };
+      txt.onfocus = function() { positionLineObj(this.linenum,txt); };
+      txt.onmouseover = function() { positionLineObj(this.linenum,txt); };      
+    }      //var scrollnode = $(".node .scroll-pane").last();
     
+    function positionLineObj(lineobj, txtobj){
+        lineobj.style.top = (txtobj.scrollTop * -1) + 'px'; 
+    }
     //scrollnode.jScrollPane();
     n.append("<div class='resizer' />");
     var resizer = $(".node .resizer").last();
@@ -549,6 +615,11 @@ function NodeGraph(){
     this.addText = function(val)
     {
         this.txt.val(val);
+    }
+    
+    this.addLineNum = function(val) 
+    {
+        //this.linenum.innerHTML = val;
     }
     function positionLeft(){
       left.css("top", n.height() / 2 - 5);
@@ -645,16 +716,19 @@ function NodeGraph(){
     resizer.mousedown(function(e){
       currentNode = curr;
       e.preventDefault();
-      startDrag(resizer, false, {left : 20, top : 20, right : 500, bottom : 500},
+      startDrag(resizer, false, {left : 20, top : 20, right : 2000, bottom : 2000},
       function(){
         var loc = resizer.position();
         var x = loc.left;
         var y = loc.top;
         n.css({"width" : x + resizer.width() + 1,
                "height" : y + resizer.height() + 1});
-        
-        txt.css({"width" : n.width() - 5, "height" : n.height() - bar.height() - 5});
-        
+        if (displaylineNum) {
+            linenum.css({"width" : 17, "height" : n.height() - bar.height() - 5});
+            txt.css({"width" : n.width() - 22, "height" : n.height() - bar.height() - 5});
+        } else {
+           txt.css({"width" : n.width() - 5, "height" : n.height() - bar.height() - 5});
+        }
         positionLeft();
         positionRight();
         positionTop();
@@ -669,7 +743,7 @@ function NodeGraph(){
       n.css("z-index", zindex++);
       e.preventDefault();
       // prashant change 
-      startDrag(n, true, {left : 10, top: 40, right :2400 , bottom : 1600},
+      startDrag(n, true, {left : 10, top: 40, right :10000 , bottom : 8000},
       //startDrag(n, true, {left : 10, top: 40, right : win.width() - n.width() - 10, bottom : win.height() - n.height() - 10},
       updateConnections);
     });
@@ -720,8 +794,8 @@ function NodeGraph(){
     currenNode = null;
   }
   
-  this.addNode = function(x, y, w, h, noDelete,title){
-    return new Node(x, y, w, h, title ,noDelete);
+  this.addNode = function(x, y, w, h, noDelete,title, displayLineNum){
+    return new Node(x, y, w, h, title ,noDelete, displayLineNum);
   }
   
   var defaultWidth = 100;
@@ -740,9 +814,11 @@ function NodeGraph(){
          w = currentNode.width() || defaultWidth;
          h = currentNode.height () || defaultHeight;
     }
+
+    //var x_sc = api.getPaneWidth();
     // Prashant made a change 
     //var temp = new Node(mouseX - resWidth/2 + 40, mouseY , w, h, "");
-    var temp = new Node(mouseX - resWidth/2 + 40, mouseY , w, h, "");
+    var temp = new Node(mouseX - resWidth/2 + 40, mouseY , w, h, "", false,false);
     currentNode = temp;
     currentConnection = null;
   }
@@ -751,7 +827,7 @@ function NodeGraph(){
     
     var temp = new Node(win.width() / 2 - defaultWidth / 2, 
                         win.height() / 2 - defaultHeight / 2,
-                        defaultWidth, defaultHeight, "" ,true);
+                        defaultWidth, defaultHeight, "" ,true,false);
     temp.txt[0].focus();
     currentNode = temp;
   }
@@ -762,7 +838,7 @@ function NodeGraph(){
     for (var i in data.nodes){
       var n = data.nodes[i];
       var ex = (i == "0") ? true : false;
-      var temp = new Node(n.x, n.y, n.width, n.height, n.title, false, n.id);
+      var temp = new Node(n.x, n.y, n.width, n.height, n.title, false, false, n.id );
       var addreturns = n.txt.replace(/\\n/g,'\n');
       temp.txt.val(addreturns);
     }

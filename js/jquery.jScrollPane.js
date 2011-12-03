@@ -778,7 +778,17 @@
 				var percentScrolled = destY / (contentHeight - paneHeight);
 				positionDragY(percentScrolled * dragMaxY, animate);
 			}
-
+                        
+                        function getPaneWidth()
+                        {
+                            return -pane.position().left;
+                        }
+                        
+                        function getPaneHeight()
+                        {
+                            return -pane.position().top;
+                        }
+                        
 			function scrollToX(destX, animate)
 			{
 				var percentScrolled = destX / (contentWidth - paneWidth);
@@ -1170,6 +1180,14 @@
 						scrollToX(destX, animate);
 						scrollToY(destY, animate);
 					},
+                                        getPaneWidth: function()
+                                        {
+                                            return getPaneWidth();
+                                        },
+                                        getPaneHeight: function()
+                                        {
+                                            return getPaneHeight();
+                                        },
 					// Scrolls the pane so that the specified co-ordinate within the content is at the left of the
 					// viewport. animate is optional and if not passed then the value of animateScroll from the settings
 					// object this jScrollPane was initialised with is used.

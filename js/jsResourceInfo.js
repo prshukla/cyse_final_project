@@ -274,7 +274,7 @@ function jsResourceInfo()
                                          {
                                               this.globalVariables.push(new variableInfo().createInstance(variablename, linenumber));
                                               this.globalVariables[this.globalVariables.length -1].addComposition(variablename,linenumber, classname); 
-                                               //alert( "variable name = " + variablename + " linenumber " + linenumber + "class name " + classname);
+                                             // alert( "variable name = " + variablename + " linenumber " + linenumber + "class name " + classname);
                                        
                                          }
                                          substringindex = linestring.length;
@@ -315,6 +315,24 @@ function jsResourceInfo()
 
                           }
                           else
+                          {
+                              if (linestring.indexOf("var") == 0  && linestring_with_whitespace.indexOf("var ") != -1) {
+                                  if (state.getlastElem()  == '')
+                                  {
+                                      var startindex = linestring.indexOf("var") + ("var").length;
+                                      var endindex = linestring.indexOf("=");
+                                      if(endindex == -1)
+                                      {
+                                          endindex = linestring.indexOf(";");
+                                      }
+                                      var variablename = linestring.substring(startindex,endindex);
+                                      var variableclass = new variableInfo().createInstance(variablename,linenumber);
+                                      this.globalVariables.push(variableclass);
+                                      
+                                  }
+                              }
+                                 
+                          }
                               substringindex = linestring.length;
                       }
                       if (substringindex == -1)
@@ -326,6 +344,7 @@ function jsResourceInfo()
           lineindex = content.indexOf("\r\n",index);
           if (lineindex == -1 && index < content.length)
           {
+              
               lineindex = content.length -1;
           }
        }
@@ -349,6 +368,45 @@ function jsResourceInfo()
              //alert (str)
              //str += ("End Class "+this.classInfoarry[i].endline +" " + this.classInfoarry[i].classname  + "\n");            
         }
+    }
+     
+    this.findInstance = function(varname) 
+    {
+        var linenum = "";
+        var content = this.fileContent;
+           if (!isfileAlib(this.filename)  || content.indexOf(varname) != -1)
+           {
+               
+               var linenumber  = 0;
+               
+               var index = 0;
+               if(content.indexOf("\r\n") == -1 && content.indexOf("\n") != -1)
+                   content = content.replace(/\n/g,"\r\n");
+               var lineindex = content.indexOf("\r\n",index);
+               var reg_rem_line_cmt = new RegExp ("/\\*.*\\*/","g");
+               var reg_rem_cmt= new RegExp("//.*", "g");
+               var regexpcharSearch = /\w/g;
+               var regexRemWhiteSpace = /[ \t]+|[ \t]+$/g;
+               while (lineindex != -1)
+               {        
+                  linenumber++;
+                  var linestring = content.substr(index,lineindex - index + 1);
+                  var linestring_with_whitespace = linestring;     
+                  linestring_with_whitespace = linestring_with_whitespace.replace (reg_rem_cmt,"");
+                  linestring_with_whitespace = linestring_with_whitespace.replace (reg_rem_line_cmt,"");
+                  if ( linestring_with_whitespace.indexOf(varname) != -1)
+                  {
+                      var str  = linenumber.toString() + "  " + linestring + "\n";
+                      linenum += str;
+
+                  }
+                  index = lineindex+2; 
+                  lineindex = content.indexOf("\r\n",index);
+               }
+           }
+           
+           return linenum;
+        
     }
 }
 
@@ -451,25 +509,13 @@ function variableInfo ()
 {
     this.modifiedAt;
     this.isdeclaredAt;
-    this.compositioninfo;
+    this.name ="";
     
     this.createInstance = function(name, linenumber)
     {
-        this.compositioninfo = new Array();
+        this.isdeclaredAt = linenumber;
+        this.name = name;
         return this;
-    }
-    
-    this.deleteInstance = function()
-    {
-        if (this.compositioninfo != null) {
-            while(this.compositioninfo.length)
-                this.compositioninfo.pop();
-            delete this.composiioninfo;
-        }        
-    }
-    this.addComposition = function(varname, linenumber, classname)
-    {
-        this.compositioninfo[this.compositioninfo.length] = new compositionInfo().createinstance(varname, linenumber, classname);
     }
 }
 
@@ -489,7 +535,14 @@ function compositionInfo ()
        return this;
    }
    
-   this.setvariablemodifie =function(linenumber)
+   this.getstr = function() {
+       var str = "Composition Information\n";
+       str += "---------------------\n";
+       str += this.linedecleration  + " " + this.variablename;
+       return str;
+   }
+   
+   this.setvariablemodified =function(linenumber)
    {
        this.variablemodified[this.variablemodified.length] = linenumber;
    }
