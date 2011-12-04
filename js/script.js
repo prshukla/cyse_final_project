@@ -679,9 +679,9 @@ function class_composition() {
          return this;
      }
      this.createNode = function(level) {
-         var x = 4000;
+         var x = 4600;
          var y = 50 + (ylevel) * 180;
-         if (y +  this.compositionin.length * (280)  > 4000 )
+         if (y +  this.compositionin.length * (280)  > 8000 )
          {
              ylevel = 0;
              xlevel++;
@@ -751,7 +751,7 @@ function class_hierarcy()
            this.classinfonode.addText(this.methodinfo);
            for (i in this.methodlist) {
                 var temp = new method_info().createInstance(this.methodlist[i].methodname);
-                var x = this.x + 600* i;
+                var x = this.x + 500* i;
                 temp.node = g_node_graph_obj.addNode(x ,this.y + 200 ,200,100,false,this.methodlist[i].methodname,false);
                 temp.node.nodeConnect("top", this.classinfonode ,"bottom"); 
                 this.methodinfoArry.push(temp);
@@ -769,14 +769,14 @@ function class_hierarcy()
                     var y = this.y + 200 + k *200;
                     if (y > class_max_y)
                         class_max_y = y ;
-                    temp.list[k].node = g_node_graph_obj.addNode(x - 300 ,y  ,200,100,false,temp.list[k].filename,false);
+                    temp.list[k].node = g_node_graph_obj.addNode(x - 250 ,y  ,200,100,false,temp.list[k].filename,false);
                     temp.list[k].node.addText(temp.list[k].linenum);
                     temp.node.nodeConnect("left", temp.list[k].node ,"right");
                 }
            }
            
-           class_x = this.x + 600*this.methodlist.length;
-           if(class_x - 4000 < 500)
+           class_x = this.x + 500*this.methodlist.length;
+           if(class_x - 4000 < 500 || class_x > 4000)
            {
                class_x = 2000;
                class_y = class_max_y + 200;

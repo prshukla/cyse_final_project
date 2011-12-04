@@ -228,6 +228,7 @@ top: 1px;
     width: 240px;
     font-size: 12px;
     color:gray;
+    cursor: pointer;
 }
 
 .file_ref:hover ,.class_ref:hover , .var_ref:hover , .class_info:hover
