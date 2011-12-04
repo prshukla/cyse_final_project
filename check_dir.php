@@ -1,7 +1,7 @@
 <?php
 
 $dirname = $_POST["name"];
-if (Is_dir($dirname) == true)
+if (is_dir($dirname) == true)
     echo "true $dirname";
 else
     echo "false $dirname";
