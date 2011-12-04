@@ -104,13 +104,29 @@ function savecwd(){
       current[0].focus();
       return;
     }
-    var index = name.indexOf("\\",name.length - 1 );
-    if (index == -1)
-        name += "\\";
-    g_cwd_path = name;
-    alert ("The current working directory has been set to " + g_cwd_path);
+    if (name.indexOf("/") != -1) {
+        // unix system
+        var index = name.indexOf("/",name.length - 1 );
+        if (index == -1)
+            name += "/";
+    }
+    else
+    {
+        var index = name.indexOf("\\",name.length - 1 );
+        if (index == -1)
+            name += "\\";
+    }
+    $.post("check_dir.php",{"name" : name}, function(data){
+        if (data.indexOf("true") ==0) {
+                g_cwd_path = name;
+                alert ("The current working directory has been set to " + g_cwd_path);
+        }else {
 
-}
+            alert("incorrect directory. Please enter the current working directory");
+        }       
+    });
+
+}  
 $(".view").live('click',function(){
      var name = $(this).text();
      // some clicks on composition display all the classes
