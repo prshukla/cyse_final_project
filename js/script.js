@@ -14,6 +14,10 @@ var iscompositionpopulated = false;
 var num_elem_per_level = new Array();
 var g_global_variable_list = new Array();
 var isglobalvarlist = false;
+var isclasslist = false;
+var g_class_list = new Array();
+var g_class_hierarcy_arry = new Array();
+
 
 $(function(){
 g_node_graph_obj = new NodeGraph();
@@ -109,8 +113,9 @@ function savecwd(){
 }
 $(".view").live('click',function(){
      var name = $(this).text();
+     // some clicks on composition display all the classes
+     // that are declared in another class
      if (name == " Composition ") {
-         //g_node_graph_obj.changeLocComposition();
          $('#var_list').remove();
             if (iscompositionpopulated == false && g_view_height != 0) {
                  var height_text = g_view_height + 'px';
@@ -156,7 +161,6 @@ $(".view").live('click',function(){
                  $("#views").css({"height": height_text});
             } 
             if( isglobalvarlist == false && g_global_variable_list != null) {   
-            var varid = $('#varid');
             var varlist = '$( <div id="var_list">)';
             $(varlist).insertAfter("#vardiv");         
             var varlist = $("#var_list");
@@ -189,12 +193,48 @@ $(".view").live('click',function(){
      } else if (name == " Class hierarchy ") {
          $('#comp_list').remove();
          $('#var_list').remove();
+         $('#class_list').remove();
          if( g_view_height != 0) {
              var height_text = g_view_height + 'px';
              $("#views").css({"height": height_text});
          }
          g_node_graph_obj.scrollToLocX(0);
          g_node_graph_obj.scrollToLocY(0);
+     } else if (name =  " Classes/Methods ") {
+         
+           if (isclasslist == false && g_view_height != 0) {
+                 $('#class_list').remove();
+                 var height_text = g_view_height + 'px';
+                 $("#views").css({"height": height_text});
+            } 
+            if( isclasslist == false && g_class_hierarcy_arry != null) {   
+            var classlist = '$( <div id="class_list">)';
+            $(classlist).insertAfter("#classview");         
+            var classlist = $("#class_list");
+            g_view_height = $("#views").height();
+            for (i = 0 ; i < g_class_hierarcy_arry.length ; i++) {
+                 var filetag = '<div class ="class_info">' +  g_class_hierarcy_arry[i].name + '</div>';
+                 classlist.append(filetag);
+                 var height_view = $("#views").height() + 20;
+                 var height_view_txt = height_view +'px';
+                 $("#views").css({"height": height_view_txt});
+                 isclasslist = true;
+            }      
+         } else {
+             isclasslist = false;
+             $('#class_list').remove();
+             var height_text = g_view_height + 'px';
+             $("#views").css({"height": height_text});
+         }
+         $(".class_info").live("click",function (){
+           var class_name = $(this).text();
+           for (i in g_class_hierarcy_arry) {
+               if (g_class_hierarcy_arry[i].name  == class_name) {
+                  g_class_hierarcy_arry[i]. create_class_information();
+                   break;
+               }
+           }
+        });
      }
          
   }).live('mouseover', function(){
@@ -337,23 +377,23 @@ function browse_resources()
             for (i in g_res_js_list) {
                     if (g_res_js_list[i].filename == filename) {
                         g_res_js_list[i].showNode();
-                        g_node_graph_obj.scrollToLocX(g_res_js_list[i].x);
-                        g_node_graph_obj.scrollToLocY(g_res_js_list[i].y);
+                        g_node_graph_obj.scrollToLocX(g_res_js_list[i].x -100);
+                        g_node_graph_obj.scrollToLocY(g_res_js_list[i].y - 50);
                     }      
             }          
             for (i in g_res_html_list) {
                 if(g_res_html_list[i].filename == filename) {
                        g_res_html_list[i].showNode();
-                       g_node_graph_obj.scrollToLocX(g_res_html_list[i].x);
-                       g_node_graph_obj.scrollToLocY(g_res_html_list[i].y);
+                       g_node_graph_obj.scrollToLocX(g_res_html_list[i].x -100);
+                       g_node_graph_obj.scrollToLocY(g_res_html_list[i].y -50);
                 }
                     
             }
             for (i in g_res_css_list) {
                 if (g_res_css_list[i].filename == filename) {
                     g_res_css_list[i].showNode(); 
-                    g_node_graph_obj.scrollToLocX(g_res_css_list[i].x);
-                    g_node_graph_obj.scrollToLocY(g_res_css_list[i].y);
+                    g_node_graph_obj.scrollToLocX(g_res_css_list[i].x -100);
+                    g_node_graph_obj.scrollToLocY(g_res_css_list[i].y -50);
                 }    
             }
                       
@@ -445,7 +485,7 @@ function create_css_browse_info(filename)
     g_res_css_list.push(new cssResourseInfo().createInstance(filename,true));
 }
 
-var g_class_hierarcy_arry = new Array();
+
 
 function build_class_hierarcy()
 {
@@ -454,18 +494,22 @@ function build_class_hierarcy()
        var js_res = g_res_js_list[i];
        if (js_res.classInfoarry != null)
            for (j in js_res.classInfoarry) {
-               var classinfo = new class_hierarcy().createInstance(js_res.classInfoarry[j].classname, js_res.classInfoarry[j].superclassname);
-              
-                for (k in js_res.classInfoarry[j].compositioninfo) {
-                    var classname = js_res.classInfoarry[j].compositioninfo[k].classname;
-                    var compinfo = js_res.classInfoarry[j].compositioninfo[k].getstr();
-                    var class_composition = new class_compositioninfo().createInstance(classname, compinfo);
-                    classinfo.composition.push(class_composition);
-                   
-                }
-               g_class_hierarcy_arry.push(classinfo);
-               
-               classinfo.methodinfo =  js_res.classInfoarry[j].get_class_details();
+               if (js_res.classInfoarry[j].classname !="") {
+                   var classinfo = new class_hierarcy().createInstance(js_res.classInfoarry[j].classname, js_res.classInfoarry[j].superclassname,
+                                                                            js_res.filename);
+
+                    for (k in js_res.classInfoarry[j].compositioninfo) {
+                        var classname = js_res.classInfoarry[j].compositioninfo[k].classname;
+                        var compinfo = js_res.classInfoarry[j].compositioninfo[k].getstr();
+                        var class_composition = new class_compositioninfo().createInstance(classname, compinfo);
+                        classinfo.composition.push(class_composition);
+
+                    }
+                   g_class_hierarcy_arry.push(classinfo);
+
+                   classinfo.methodinfo =  js_res.classInfoarry[j].get_class_details();
+                   classinfo.methodlist = js_res.classInfoarry[j].methodinfo;
+               }
            }
        
    }
@@ -617,8 +661,8 @@ function create_composition_class(obj ,level) {
    if (obj.node == null){ 
         obj.createNode(level);
    }
-   g_node_graph_obj.scrollToLocX(obj.x_coordinate);
-   g_node_graph_obj.scrollToLocY(obj.y_coordinate);
+   g_node_graph_obj.scrollToLocX(obj.x_coordinate -200);
+   g_node_graph_obj.scrollToLocY(obj.y_coordinate -50);
 }
 var ylevel = 0;
 var xlevel = 0;
@@ -661,8 +705,14 @@ function class_composition() {
 }
 
 
+var class_x = 1500;
+var class_y = 50;
+var class_max_y = 0;
 function class_hierarcy()
 {
+   this.x = 0;
+   this.y = 0;
+   this.filename= "";
    this.name = "";
    this.superclassname = "";
    this.node = null;
@@ -670,8 +720,12 @@ function class_hierarcy()
    this.subclass = null;
    this.composition = new Array();
    this.methodinfo = "";
-   this.createInstance = function(classname , superclass)
+   this.methodlist = new Array();
+   this.methodinfoArry = new Array();
+   this.classinfonode = null;
+   this.createInstance = function(classname , superclass,filename)
    {
+       this.filename =filename;
        this.name = classname;
        this.superclassname = superclass;
        this.subclass = new Array();
@@ -689,9 +743,62 @@ function class_hierarcy()
             this.node.nodeConnect("top", this.superclass.node ,"bottom");    
              
    }
-   
+   this.create_class_information = function() {
+       if (this.classinfonode == null){
+           this.x = class_x;
+           this.y = class_y;
+           this.classinfonode = g_node_graph_obj.addNode(this.x,this.y,200,100,false,this.name,false);
+           this.classinfonode.addText(this.methodinfo);
+           for (i in this.methodlist) {
+                var temp = new method_info().createInstance(this.methodlist[i].methodname);
+                var x = this.x + 600* i;
+                temp.node = g_node_graph_obj.addNode(x ,this.y + 200 ,200,100,false,this.methodlist[i].methodname,false);
+                temp.node.nodeConnect("top", this.classinfonode ,"bottom"); 
+                this.methodinfoArry.push(temp);
+                for(j in g_res_js_list) {
+                    if (this.filename != g_res_js_list[j].filename) {
+                        var linenum = g_res_js_list[j].findInstance(this.methodlist[i].methodname + "(");
+                        if (linenum != "") {
+                            var filename = g_res_js_list[j].filename.substring(g_cwd_path.length,g_res_js_list[j].filename.length );
+                            var var_inst = new  var_instance_info().createInstance(filename,linenum);
+                            temp.list.push(var_inst);
+                        }
+                    } 
+                }
+                for (k in temp.list) {
+                    var y = this.y + 200 + k *200;
+                    if (y > class_max_y)
+                        class_max_y = y ;
+                    temp.list[k].node = g_node_graph_obj.addNode(x - 300 ,y  ,200,100,false,temp.list[k].filename,false);
+                    temp.list[k].node.addText(temp.list[k].linenum);
+                    temp.node.nodeConnect("left", temp.list[k].node ,"right");
+                }
+           }
+           
+           class_x = this.x + 600*this.methodlist.length;
+           if(class_x - 4000 < 500)
+           {
+               class_x = 2000;
+               class_y = class_max_y + 200;
+               class_max_y = 0;
+           }
+            
+       }
+       g_node_graph_obj.scrollToLocX(this.x - 100);
+       g_node_graph_obj.scrollToLocY(this.y - 100);
+   }
 }
 
+function method_info() 
+{
+    this.name ;
+    this.node = null;
+    this.list = new Array();
+    this.createInstance = function(name){
+        this.name = name;
+        return this;
+    }
+}
 
 function class_compositioninfo()
 {
@@ -805,7 +912,6 @@ function var_instance_info(){
     
     
 }
-
 
 function save_file(filename,text)
 {

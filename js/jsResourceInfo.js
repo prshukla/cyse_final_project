@@ -483,6 +483,7 @@ function classInfo()
         str += "---------------\n";
         return str;
     }
+    
 }
 
 function methodInfo()

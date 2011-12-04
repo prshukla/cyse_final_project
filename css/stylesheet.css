@@ -119,7 +119,7 @@ nav#menu ul li a:hover
 #views
 {
     width: 220px;
-    height: 116px;
+    height: 150px;
     border-color: gray;
     border-style: solid;
     -webkit-border-radius:5px;
@@ -221,7 +221,7 @@ top: 1px;
    color:darkgray; 
 }
 
-.file_ref ,.class_ref , .var_ref
+.file_ref ,.class_ref , .var_ref, .class_info
 {
     margin-left: 20px;
     font-family:Helvetica;
@@ -230,7 +230,7 @@ top: 1px;
     color:gray;
 }
 
-.file_ref:hover ,.class_ref:hover , .var_ref:hover
+.file_ref:hover ,.class_ref:hover , .var_ref:hover , .class_info:hover
 {
     color:darkgray;
 }
