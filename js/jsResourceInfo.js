@@ -4,12 +4,12 @@ function jsResourceInfo()
     this.globalVariables = null;
     this.nodeArray = null;
     
-    this.createInstance = function(filename,open)
+    this.createInstance = function(filename,open,id)
     {
         this.classInfoarry = new Array();
         this.globalVariables  = new Array();
         this.nodeArray = new Array();
-        this.createResourceInfo(filename);
+        this.createResourceInfo(filename,open, id);
         if(open)
             this.openFile();
         return this;
@@ -28,7 +28,7 @@ function jsResourceInfo()
         if(this.globalVariables != null) {
             while (this.globalVariables.length > 0) {
                 var varinfo = this.globalVariables.pop();
-                varinfo.deleteInstance();
+                //varinfo.deleteInstance();
             }
             delete this.globalVariables;
         }
@@ -387,6 +387,7 @@ function jsResourceInfo()
                var reg_rem_cmt= new RegExp("//.*", "g");
                var regexpcharSearch = /\w/g;
                var regexRemWhiteSpace = /[ \t]+|[ \t]+$/g;
+               var regexleadingwhitespace = /^\s+|\s+$/g;
                while (lineindex != -1)
                {        
                   linenumber++;
@@ -396,6 +397,7 @@ function jsResourceInfo()
                   linestring_with_whitespace = linestring_with_whitespace.replace (reg_rem_line_cmt,"");
                   if ( linestring_with_whitespace.indexOf(varname) != -1)
                   {
+                      linestring = linestring.replace(regexleadingwhitespace,"")
                       var str  = linenumber.toString() + "  " + linestring + "\n";
                       linenum += str;
 

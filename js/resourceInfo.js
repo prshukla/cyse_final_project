@@ -20,14 +20,18 @@ function resourceInfo()
    {
        this.node.remove();
    }
-   this.createResourceInfo = function(name)
+   this.createResourceInfo = function(name,open, id)
    {
         this.filename  = name;
-        this.x = g_node_graph_obj.get_file_x();
-        this.y = g_node_graph_obj.get_file_y(); 
-        this.node = g_node_graph_obj.addNode(this.x,this.y,500,700,false,name,true);
-        //g_resource_array [g_resource_array.length] = this.node
-        //this.node.hide();
+        if (open) {
+            this.x = g_node_graph_obj.get_file_x();
+            this.y = g_node_graph_obj.get_file_y(); 
+            this.node = g_node_graph_obj.addNode(this.x,this.y,500,700,false,name,true);
+            //g_resource_array [g_resource_array.length] = this.node
+            //this.node.hide();
+        } else  {
+            this.node = g_node_graph_obj.getNode(id);
+        }
         return this;
    }
    

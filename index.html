@@ -25,7 +25,6 @@
                     <li> <a id="open">open</a></li>
                     <li> <a id="new">new</a></li>
                     <li> <a id="save">save</a></li>
-                    <li id="cwd_box"> <form id="cwd_form">Working directory: <input type ="text" name="cwd" id="cwd" > </form></input>
                     <li><a id="help">help</a></li>
                 </ul>
             </nav>
@@ -37,9 +36,13 @@
             </header>
             <div id="files"></div>
             <div class ="file_select" style="margin-top:20px;">
+                <div> <p style="text-align:center;"> OR</p> </div>    
                 
-            <input id="file_scan_button" class="gray button" style="margin-left: 30px;" type="button" Name="button" value="Scan" 
-                              onClick="scan_cwd('html')"/>
+                <div id="cwd_box"> <form id="cwd_form" Method="POST" > 
+                        <input type ="text" name="cwd" id="cwd" Value="Enter the Working directory">  </div>
+                
+                <input id="file_scan_button" class="gray button" style="margin-left: 30px;" type="SUBMIT" Name="button" value="Scan" /> </form>
+                
             </div>               
         </div>
         <!-- This save file information -->

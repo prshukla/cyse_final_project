@@ -5,11 +5,11 @@ function htmlResourceInfo()
     this.inlinejsResource = null;
     this.jason;
     
-    this.createInstance = function(filename,open)
+    this.createInstance = function(filename,open, id)
     {
         this.jsresourcelist= new Array();
         this.cssResourcelist = new Array();
-        this.createResourceInfo(filename);
+        this.createResourceInfo(filename, open,id);
         if (open)
             this.openFile();
         this.json="";
@@ -270,24 +270,24 @@ function htmlResourceInfo()
         //this.json = '{"file" : "' +  this.filename + '",';
         //this.json =  '{"Resource" : [';
         for (i =0; i < this.jsresourcelist.length; i++) {
-            create_js_browse_info(this.jsresourcelist[i]);
+            var tempid = create_js_browse_info(this.jsresourcelist[i]);
             this.json += '{ "name" : "' + this.jsresourcelist[i] + '", ';
+            this.json += '"project" :"' + projectName + '", ';
+            this.json += '"id" : ' + tempid.node.id + ', '; 
             this.json += '"type" : "javascript" },';        
         }
         for (i =0; i < this.cssResourcelist.length; i++) {
-            create_css_browse_info(this.cssResourcelist[i]);
+            var tempid = create_css_browse_info(this.cssResourcelist[i]);
             this.json += '{ "name" : "' + this.cssResourcelist[i] + '", ';
+            this.json += '"project" :"' + projectName + '", ';
+            this.json += '"id": ' + tempid.node.id + ', ';             
             this.json += '"type" : "stylesheet"},';   
         }
+        
         this.json = this.json.substring(0,this.json.length - 1)
         //this.json += ']}';
     }
     
-    
-    this.fromJson = function()
-    {
-        
-    }
 }
 
 htmlResourceInfo.prototype = new resourceInfo;

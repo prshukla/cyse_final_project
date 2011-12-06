@@ -85,6 +85,9 @@ function NodeGraph(){
     connectNode(dir);
   });
   
+  this.getNode = function(id) {
+    return nodes[id];
+  }
  /* $("#submenu li").hover(function(){
     $(this).css("background-color", "#cccccc");
   }, 
@@ -381,7 +384,7 @@ function NodeGraph(){
   function Node(xp, yp, w, h, title, noDelete,  displayLineNum, forceId){
     
 
-    if (forceId){
+    if (forceId != null){
        nodeId = forceId;
     }
     this.id = nodeId;
@@ -833,13 +836,15 @@ function NodeGraph(){
   }
   //defaultNode();
 
+
   this.fromJSON = function(data){
     clear();
     for (var i in data.nodes){
       var n = data.nodes[i];
-      var ex = (i == "0") ? true : false;
-      var temp = new Node(n.x, n.y, n.width, n.height, n.title, false, false, n.id );
-      var addreturns = n.txt.replace(/\\n/g,'\n');
+      var title = remspecialchar(n.title);
+      var temp = new Node(n.x, n.y, n.width, n.height, title, false, false, n.id );
+      var addreturns = remspecialchar(n.txt);
+
       temp.txt.val(addreturns);
     }
     for (i in data.connections){
@@ -857,8 +862,9 @@ function NodeGraph(){
       json += '"y" : ' + n.y() + ', ';
       json += '"width" : ' + n.width() + ', ';
       json += '"height" : ' + n.height() + ', ';
-      json += '"title" : "' + n.title() + '", ';
+      json += '"title" : "' + addSlashes(n.title()) + '", ';
       json += '"txt" : "' + addSlashes(n.txt.val()) + '"},';
+      //json += '"txt" : "' + "" + '"},';
     }
     json = json.substr(0, json.length - 1); 
     json += '], "connections" : [';
@@ -879,14 +885,35 @@ function NodeGraph(){
     }
     json += ']}';
     return json;
-  }
-  
-  function addSlashes(str) {
-    str = str.replace(/\\/g,'\\\\');
-    str = str.replace(/\'/g,'\\\'');
-    str = str.replace(/\"/g,'\\"');
-    str = str.replace(/\0/g,'\\0');
-    str = str.replace(/\n/g,'\\\\n');
+  } 
+
+}
+
+function addSlashes(str) {
+    str = str.replace(/\\/g,'&bkslash;');
+    str = str.replace(/\'/g,'&squote;');
+    str = str.replace(/\"/g,'&quote;');
+    str = str.replace(/\0/g,'&nc;');
+    str = str.replace(/\n/g,'&nl;');
+    str = str.replace(/{/g,'&obraces;');
+    str = str.replace(/}/g,'&cbraces;');
+    str = str.replace(/:/g,'&cl;');
+    str = str.replace(/,/g,'&cm;');
+    str = str.replace(/\t/g,'&tb;');
     return str;
   }
-}
+  
+  function remspecialchar(str) {
+      str = str.replace(/&bkslash;/g,"\\");
+      str = str.replace(/&squote;/g,"\'");
+      str = str.replace(/&quote;/g,"\"");
+      str = str.replace(/&nc;/g,"\0");
+      str = str.replace(/&nl;/g,"\n");
+      str = str.replace(/&obraces;/g,"{");
+      str = str.replace(/&cbraces;/g,"}");
+      str = str.replace(/&cl;/g,":");
+      str = str.replace(/&cm;/g,",");
+      str = str.replace(/&tb;/g,"\t");
+      
+      return str;
+  }
