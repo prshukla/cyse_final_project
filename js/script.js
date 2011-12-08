@@ -372,6 +372,7 @@ function save_prj_file()
         }
         else
         {
+            $('#save_file').css({"cursor":"wait"});
             $('#save_file').hide();
            
             var filename = "json/" + filepath;
@@ -685,8 +686,8 @@ function connect_nodes() {
         var nodeptr = listnode.node;
         nodeptr.createNode(level);
         num_elem_per_level[level] += 1;
+        level +=1;
         for (i in nodeptr.subclass) {
-            level +=1;
             create_node(nodeptr.subclass[i], level);
         }
         listnode = nodeptr.nextnode;
@@ -699,9 +700,10 @@ function create_node(node, level) {
             num_elem_per_level[templevel] = 0;
         num_elem_per_level[templevel] += 1;
         node.createNode(templevel);
+        templevel++;
         for(i in node.subclass) {
             
-            create_node(node.subclass[i],++templevel);
+            create_node(node.subclass[i],templevel);
         }
 }
 

@@ -88,17 +88,7 @@ function NodeGraph(){
   this.getNode = function(id) {
     return nodes[id];
   }
- /* $("#submenu li").hover(function(){
-    $(this).css("background-color", "#cccccc");
-  }, 
-  function () {
-      $(this).css("background-color","white");
-  }).click(function(){
-     submenu.hide();
-     var cmd = $(this).text();
-     currentNode.executecmd(cmd);
-  });
-  */
+
   
   function connectNode(dir){
     var node, x, y;
@@ -540,13 +530,7 @@ function NodeGraph(){
                  "font-size" : "12px" , "font-family" : "sans-serif",
                  "border-right" : "1px solid #cccccc","z-index":4});
          textwidth =   nodeWidth - 22;
-         textleftLoc = 17;
-         var string = '';
-         for(var no=1;no<200;no++){
-            if(string.length>0)string = string + '<br>';
-          string = string + no;
-          linenum.innerHTML =string;
-      }    
+         textleftLoc = 17; 
     }
     this.linenum = linenum;
 
@@ -622,7 +606,6 @@ function NodeGraph(){
     
     this.addLineNum = function(val) 
     {
-        //this.linenum.innerHTML = val;
     }
     function positionLeft(){
       left.css("top", n.height() / 2 - 5);
