@@ -29,6 +29,7 @@ var xlevel = 0;
 var isloadcomplete = false;
 var isClickingDisabled = true;
 var percentage = 0;
+var isresourcelist = false;
 
 $(function(){
 g_node_graph_obj = new NodeGraph();
@@ -93,6 +94,8 @@ $("#views").hide();
         ylevel = 0;
         delete  num_elem_per_level;
         num_elem_per_level = new Array();
+        g_cwd_path = "";
+        $('#res_list').remove();
         $("#expand").remove();
         $("#collapse").remove();
          
@@ -153,7 +156,7 @@ $("#new").click(function(event){
       $(this).val(nameMessage);
     }
   });
-  
+ 
 function savecwd(){
     var name = current.val();
     if (name == "" || name == nameMessage){
@@ -334,8 +337,7 @@ $(".file").live ('click', function() {
 
     isloadcomplete = false;
      $(".file").css({"cursor":"wait"});  
-     $("#progress-bar").show();
-     $("#progress").show();
+
     $.getJSON(name,  function(data){
         window.setTimeout(function(){LoadData(data);},10)
     });
@@ -350,6 +352,7 @@ $(".file").live ('click', function() {
 });
 
 function LoadData(data){
+
     if(g_node_graph_obj == null)
         g_node_graph_obj = new NodeGraph();
     g_node_graph_obj.fromJSON(data);
@@ -439,12 +442,14 @@ function browse_resources()
         $(filelist).insertAfter("#collapse");
         var res_list = $("#res_list");
         var count = 0;
-        var len = g_cwd_path.length
+        var len = g_cwd_path.length;
+        var filename;
         if( g_res_html_list != null) {
             for (i = 0 ; i < g_res_html_list.length ; i++) {
-
-                var file_name = g_res_html_list[i].filename.substring(len,g_res_html_list[i].filename.length );
-                var filetag = '<div class =file_ref>' +  file_name + '</div>';
+                filename = g_res_html_list[i].filename;
+                if ( len > 0 && (filename.indexOf (g_cwd_path) != -1))    
+                    filename = filename.substring(len,filename.length );
+                var filetag = '<div class =file_ref>' +  filename + '</div>';
 
                 res_list.append(filetag);
                 if (count++ > 5) {
@@ -456,9 +461,10 @@ function browse_resources()
         }
         if (g_res_js_list != null) {
             for(i =0; i < g_res_js_list.length ; i++){
-                var file_name = g_res_js_list[i].filename.substring(len,g_res_js_list[i].filename.length);
-
-                var filetag = '<div class =file_ref>' +  file_name + '</div>'; 
+                filename = g_res_js_list[i].filename;
+                if(len > 0 && (filename.indexOf (g_cwd_path) != -1)) 
+                    filename = filename.substring(len,filename.length);
+                var filetag = '<div class =file_ref>' +  filename + '</div>'; 
                 res_list.append(filetag);
                 if (count++ > 5) {
                     var height = $("#browse_info").height() + 16 ;
@@ -469,9 +475,11 @@ function browse_resources()
         }
         if(g_res_css_list != null) {
             for(i =0; i < g_res_css_list.length ; i++){
-                var file_name = g_res_css_list[i].filename.substring(len,g_res_css_list[i].filename.length);
+                filename = g_res_css_list[i].filename;
+                if(len > 0 && (filename.indexOf (g_cwd_path) != -1)) 
+                    filename =filename.substring(len,filename.length);
 
-                var filetag = '<div class =file_ref>' +  file_name + '</div>'; 
+                var filetag = '<div class =file_ref>' +  filename + '</div>'; 
                 res_list.append(filetag);
                 if (count++ > 5) {
                     var height = $("#browse_info").height() + 16 ;
@@ -513,7 +521,7 @@ function browse_resources()
         $("#collapse").click(function(event){           
         $('#res_list').remove(); 
         $("#browse_info").css({"height":"200px"}); 
-        $("#collapse").hide();
+        $("#collapse").remove();
         $("#expand").show();
     });
 

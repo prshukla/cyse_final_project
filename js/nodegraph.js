@@ -847,7 +847,7 @@ function NodeGraph(){
       json += '"height" : ' + n.height() + ', ';
       json += '"title" : "' + addSlashes(n.title()) + '", ';
       json += '"txt" : "' + addSlashes(n.txt.val()) + '"},';
-      //json += '"txt" : "' + "" + '"},';
+
     }
     json = json.substr(0, json.length - 1); 
     json += '], "connections" : [';
@@ -896,7 +896,6 @@ function addSlashes(str) {
       str = str.replace(/&cbraces;/g,"}");
       str = str.replace(/&cl;/g,":");
       str = str.replace(/&cm;/g,",");
-      str = str.replace(/&tb;/g,"\t");
-      
+      str = str.replace(/&tb;/g,"\t");     
       return str;
   }
