@@ -22,10 +22,13 @@ var class_y = 50;
 var class_max_y = 0;
 var var_x = 600;
 var var_y= 2000;
-
 var var_inst_x = 250;
 var var_inst_y = 2000;
-
+var ylevel = 0;
+var xlevel = 0;
+var isloadcomplete = false;
+var isClickingDisabled = true;
+var percentage = 0;
 
 $(function(){
 g_node_graph_obj = new NodeGraph();
@@ -34,6 +37,7 @@ $("#file_open").hide();
 $("#save_file").hide();
 $('#browse_info').hide();
 $("#views").hide();
+
   // consider moving to NodeGraph
   $("#canvas").mouseup(function(e){
       if (g_node_graph_obj != null)
@@ -42,7 +46,8 @@ $("#views").hide();
         if (children.length > 0){
             var type = children[0].tagName;
             if (type == "desc" || type == "SPAN"){
-                g_node_graph_obj.addNodeAtMouse();
+               if(isClickingDisabled == false) 
+                    g_node_graph_obj.addNodeAtMouse();
             }
         }
       }
@@ -68,6 +73,9 @@ $("#views").hide();
         delete g_res_css_list ;
         g_res_css_list = null;
         delete g_compostion_class_list;
+        delete g_global_variable_list;
+        g_global_variable_list =null;
+        g_global_variable_list = new Array();
         g_compostion_class_list = null;
         g_compostion_class_list = new Array();
         iscompositionpopulated = false;
@@ -80,6 +88,14 @@ $("#views").hide();
         var_y= 2000;
         var_inst_x = 250;
         var_inst_y = 2000;
+        isClickingDisabled = true;
+        xlevel = 0;
+        ylevel = 0;
+        delete  num_elem_per_level;
+        num_elem_per_level = new Array();
+        $("#expand").remove();
+        $("#collapse").remove();
+         
  }
  
 //var opentag = $("#open");
@@ -106,11 +122,9 @@ $("#save").click(function(event){
 });
 
 $("#new").click(function(event){
-    if (g_cwd_path == "")
-        alert("Please enter the working directory");
-    else
-    {
+
         init();
+        isClickingDisabled = false;
         if (g_node_graph_obj != null)
             g_node_graph_obj.clearAll();
         else
@@ -119,7 +133,7 @@ $("#new").click(function(event){
         $("#save_file").hide();
         $('#browse_info').hide();
         $("#views").hide();
-    }
+    
 });
 
   $("#cwd_form").submit(function(e){
@@ -177,7 +191,10 @@ $(".view").live('click',function(){
      // that are declared in another class
      if (name == " Composition ") {
          $('#var_list').remove();
-            if (iscompositionpopulated == false && g_view_height != 0) {
+         isglobalvarlist = false 
+         $('#class_list').remove();
+         isclasslist = false;
+         if (iscompositionpopulated == false && g_view_height != 0) {
                  var height_text = g_view_height + 'px';
                  $("#views").css({"height": height_text});
          } 
@@ -312,17 +329,18 @@ $(".view").live('click',function(){
     $(this).css({"background-color": "white"});
   });    
 
-$(".file").live('click', function() {
+$(".file").live ('click', function() {
     var name = $(this).text();
-    $.getJSON(name, {n:Math.random()}, function(data){
-        if(g_node_graph_obj == null)
-            g_node_graph_obj = new NodeGraph();
-       g_node_graph_obj.fromJSON(data);
-       build_resource_info(data);
+
+    isloadcomplete = false;
+     $(".file").css({"cursor":"wait"});  
+     $("#progress-bar").show();
+     $("#progress").show();
+    $.getJSON(name,  function(data){
+        window.setTimeout(function(){LoadData(data);},10)
     });
-    $("#file_open").hide();
-    $('#browse_info').show();
-    $("#views").show();
+    return false;
+
   }).live('mouseover', function(){
     $(this).css({"background-color": "#ededed"});
   }).live("mouseout", function(){
@@ -330,6 +348,19 @@ $(".file").live('click', function() {
   });
 
 });
+
+function LoadData(data){
+    if(g_node_graph_obj == null)
+        g_node_graph_obj = new NodeGraph();
+    g_node_graph_obj.fromJSON(data);
+    build_resource_info(data);
+    isloadcomplete = true;
+
+    $("#file_open").hide();
+    $('#browse_info').show();
+    $("#views").show();
+}
+
 
 function save_prj_file()
 {
@@ -365,13 +396,15 @@ function save_prj_file()
                    jsoninfo +=  g_res_html_list[i].json;
                }
                jsoninfo +=  '],';
+               jsoninfo += class_info_toJson();
+               jsoninfo += ',';
+               jsoninfo += class_composition_toJson();
+               jsoninfo += ',';
+               jsoninfo += global_variable_toJson();
+               jsoninfo += "}";
             }
-            jsoninfo += class_info_toJson();
-            jsoninfo += ',';
-            jsoninfo += class_composition_toJson();
-            jsoninfo += ',';
-            jsoninfo += global_variable_toJson();
-            jsoninfo += "}";
+
+
             $.post("save.php",{"name" : filename, "data" : jsoninfo}, function(data){
                 alert(data);
             });
@@ -390,6 +423,7 @@ function browse_resources()
     {
         projectName = ' Project';
     }
+
     var prjExpandTag = '<a id="expand" href="#" > <img  src="images/expand.png"><span class="project_name">' + projectName + 
         '</span> </a>' ;
     var prjCollapseTag = '<a id="collapse" href="#" class="project_name"> <img  src="images/contract.png"><span class="project_name ">' +  projectName + 
@@ -453,14 +487,14 @@ function browse_resources()
             for (i in g_res_js_list) {
                     if (g_res_js_list[i].filename == filename) {
                         g_res_js_list[i].showNode();
-                        g_node_graph_obj.scrollToLocX(g_res_js_list[i].node.x() -100);
+                        g_node_graph_obj.scrollToLocX(g_res_js_list[i].node.x() -250);
                         g_node_graph_obj.scrollToLocY(g_res_js_list[i].node.y() - 50);
                     }      
             }          
             for (i in g_res_html_list) {
                 if(g_res_html_list[i].filename == filename) {
                        g_res_html_list[i].showNode();
-                       g_node_graph_obj.scrollToLocX(g_res_html_list[i].node.x() -100);
+                       g_node_graph_obj.scrollToLocX(g_res_html_list[i].node.x() -250);
                        g_node_graph_obj.scrollToLocY(g_res_html_list[i].node.y() -50);
                 }
                     
@@ -468,7 +502,7 @@ function browse_resources()
             for (i in g_res_css_list) {
                 if (g_res_css_list[i].filename == filename) {
                     g_res_css_list[i].showNode(); 
-                    g_node_graph_obj.scrollToLocX(g_res_css_list[i].node.x() -100);
+                    g_node_graph_obj.scrollToLocX(g_res_css_list[i].node.x() -250);
                     g_node_graph_obj.scrollToLocY(g_res_css_list[i].node.y() -50);
                 }    
             }
@@ -767,11 +801,10 @@ function create_composition_class(obj ,level) {
    if (obj.node == null){ 
         obj.createNode(level);
    }
-   g_node_graph_obj.scrollToLocX(obj.node.x() -200);
+   g_node_graph_obj.scrollToLocX(obj.node.x() -250);
    g_node_graph_obj.scrollToLocY(obj.node.y() -50);
 }
-var ylevel = 0;
-var xlevel = 0;
+
 
 function class_composition() {
      this.name ="";
@@ -943,8 +976,8 @@ function class_hierarcy()
            }
             
        }
-       g_node_graph_obj.scrollToLocX(this.classinfonode.x() - 100);
-       g_node_graph_obj.scrollToLocY(this.classinfonode.y() - 100);
+       g_node_graph_obj.scrollToLocX(this.classinfonode.x() - 250);
+       g_node_graph_obj.scrollToLocY(this.classinfonode.y() - 250);
    }
 }
 

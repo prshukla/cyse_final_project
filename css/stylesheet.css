@@ -178,7 +178,7 @@ background: -webkit-gradient(linear, left top, left bottom, from(#7D7D7D), to(#7
 background: -webkit-gradient(linear, left top, left bottom, from(#6B6B6B), to(#6c6c6c));
 }
 .gray:active {
-color: #80bed6;
+color: black;
 background: -webkit-gradient(linear, left top, left bottom, from(#909090), to(#929292));
 }
 .button {
@@ -219,6 +219,10 @@ top: 1px;
 .project_name:hover
 {
    color:darkgray; 
+}
+#help
+{
+    text-decoration: none;
 }
 
 .file_ref ,.class_ref , .var_ref, .class_info

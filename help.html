@@ -1,0 +1,162 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Help</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+<h1>Purpose</h1>
+
+<p>The document describes the source code analyzer. It describes how to setup and use this application. This analyzer in its current state is not complete and has number of unsupported features. This analyzer only works on Javascript and HTML code.</p>
+
+<h1>Design</h1>
+
+<h3>Analyzing a HTML File: </h3>
+
+<p>- First the analyzer scans the current working directory to determine all the files in it. From the list of files it extracts the HTML files and scans the HTML file for all the resources in that project file. This way we populate the project resources. </p>
+
+<h3>Analyzing a Javascript File:</h3>
+
+<p>- Once we have the project resources, we scan all the javascript files and find all the classes and methods in that class.</p>
+
+<p>- We also scan all the files and determine the global variables in the project</p>
+
+<p>- Once we have a list of all the classes we determine the class hierarchy, composition. This list helps us populate the views tab. </p>
+
+<p>- Using the Znode we display composition, class hierarchy and file content.</p>
+
+<br />
+<h2>Implementation: </h2>
+
+<p>Figure 1. displays the front page a user sees once they open the application.</p>
+
+<p> </p>
+
+<p>Figure 1: Front Page</p>
+
+<h3>Workspace:</h3>
+
+<p>There is a large workspace area where all the information is displayed. This workspace has not been separated for different views. But can be done as part of the future enhancement. A horizontal and vertical scroll bars are provided to scroll through the workspace. </p>
+
+<h3>Main Menu:</h3>
+
+<p>The Main menu has four main options:</p>
+
+<p>1. Open </p>
+
+<p>2. New</p>
+
+<p>3. Save</p>
+
+<p>4. Help</p>
+
+<h3>Open:</h3>
+
+<p>When a user selects Open option . The user can either scan a current project or view a saved Project. By clicking on the saved project the views that were saved from a previous scan procedure will be displayed. </p>
+
+<p>Figure 2: Open Option</p>
+
+<p>When the user selects the Scan option then user must enter the working directory in the main menu. Once you enter the path and hit enter. The user is notified if the working directory has been accepted or not. Figure 3. Shows successful response. </p>
+
+<p>Figure 3: Successful response from setting the working Directory</p>
+
+<p>Figure 4. indicates a set working directory failed. This could be because the directory name was invalid or the webserver is no permission to read that directory. </p>
+
+<p>Figure 4: Failed to set the working directory.</p>
+
+<h2>Scan option:</h2>
+
+<p>After selecting the Open option from the main menu and clicking on the “scan” button. The source code analyzer will find all the resources in the project and display the following views as shown in the figure below.</p>
+
+<p>1. Project resources</p>
+
+<p>2. Classes and Methods</p>
+
+<p>3. Class hierarchy</p>
+
+<p>4. Composition</p>
+
+<p>5. Variables</p>
+
+<p>Figure 5: Output from the scan operation</p>
+
+<h2>Project Resources:</h2>
+
+<p>This lists all the files that were found by scanning the contents of the HTML files in the directory. The Title of the project is the title of the main webpage. As a future enhancement we should be able to determine the main HTML file name. By clicking on – and + image next to the project name we can hide or show the project resources. Also clicking on the file name will take you to contents of the file . We can view multiple source files at the same time. The Contents of the file are read using the php commands for file manipulation. </p>
+
+<p>Figure 6: Project resources</p>
+
+<h2>Viewing the source file: </h2>
+
+<p>As shown in the in figure 7. Clicking on the file will display the contents of the file. The title bar includes the name of the file. The user can also click on “V “ and save the changes made to the file, hide the file or close the file from the workspace. </p>
+
+<p>The user can view multiple source files at any given time. No search option is provided since browser has a powerful search option builtin. As a future enhancement we should implement a way to display a line number. A column next to the left of the source code has been added but was not completed in time.</p>
+
+<p>Figure 7: Viewing a source file</p>
+
+<h1>Views </h1>
+
+<p>The Remaining views are: </p>
+<ul>
+<li>Class and Method view </p></li>
+<li>Class heirarchy view </li>
+<li>Composition view </li>
+<li>Variables views</li>
+
+</ul>
+<h2>Class/Method View:</h2>
+
+<p>By clicking on Class and Method View , All classes in the project are displayed. Clicking on the one of the classes will display All the methods in the class. What line number the methods span. It also draws a tree of from where that method with the line number and code. This view is only available when the user clicks on it and is not removed from the workspace. The user can go back to this view by clicking on the class at any time. </p>
+
+<p>Figure 8: Classes and Method View</p>
+
+<h2>Class Hierarchy</h2>
+
+<p>This is displayed on the left most portion of the workspace. In order to display this tree a complex algorithm was implemented which displays all the nodes on the tree in proper sequence. It displays all the method in each class in the tree. The title of the node is the Class name and Top class is super class and bottom node is the subclass. Clicking on the Class hierarchy tab in the views will bring you this view. Figure 9. shows an example of this view.</p>
+
+<p>Figure 9: Class Hierarchy view</p>
+
+<h2>Composition</h2>
+
+<p>Clicking on the Composition tab displays all the classes that are instantiated in another class. Click on the class name will display the class names from which this class is called and the line number of the code and the name of the variable assigned. In case instantiated without a variable name then only the line number will appear. This view is only generated when the user clicks on the class and come back to this view any time by just clicking on the class. Figure 10. Displays an example of the composition view. </p>
+
+<p>Figure 10: Composition view</p>
+
+<h2>Variables view</h2>
+
+<p>This displays the list of all the global variables in the project. Clicking on one of the global variables will display the file, line number and the code from which it is called. If there multiple references of the variable from the same file then it will show in the same node. Figure 11. Shows an example of the global variable view. </p>
+
+<p>Figure 11:Global variables view</p>
+
+<h1>Save Option</h1>
+
+<p>This option in the main menu lets the user save the work space information. This can let the user take a snapshot of the project as it development progresses or changes. Opening a saved project doesn’t display the source code files. </p>
+
+<p>When the user clicks on Save option, a “Save Project as” window appears and by entering the name of file with a .json extension will save the entire workspace. </p>
+
+<p>Figure 12: Save Option</p>
+
+<h1>New Option:</h1>
+
+<p>Clears the workspace and Project resources and lets the user create a new project manually or open another project. </p>
+
+<h1>Help Options:</h1>
+
+<p>Shows you this document.</p>
+
+<h1>Setup</h1>
+
+<p>- First we need to install xampp on the machine. </p>
+
+<p>- Download the latest version of the code from github. The code is available at <a href="https://github.com/prshukla/cyse_final_project">https://github.com/prshukla/cyse_final_project</a></p>
+
+<p>- Copy this folder into the htdocs directory </p>
+
+<p>- Make sure there is source code you want to analyze is located in a directory where the webserver has access to it. </p>
+
+</body>
+</html>
