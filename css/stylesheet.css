@@ -1,7 +1,7 @@
 body, html{
   margin : 0;
   padding : 0;
-  overflow : hidden;
+
 }
 
 nav#menu
@@ -12,11 +12,13 @@ nav#menu
     width:100%;
     -webkit-border-radius:5px;
     background-color:gray;
+    overflow : hidden;
 }
 
 #expand, #collapse
 {
     margin-left:10px;
+    
 }
 
 
